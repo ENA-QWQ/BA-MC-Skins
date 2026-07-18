@@ -6,7 +6,11 @@
     "build": "node scripts/build.mjs"
   },
   "dependencies": {
-    "@napi-rs/canvas": "^0.1.53",
-    "skinview3d": "^3.4.2"
+    "canvas": "^2.11.2",
+    "gl": "^6.0.2",
+    "jsdom": "^24.1.3",
+    "sharp": "^0.33.4",
+    "skinview3d": "^3.1.0",
+    "three": "^0.160.0"
   }
 }
