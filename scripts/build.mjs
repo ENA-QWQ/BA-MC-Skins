@@ -20,6 +20,7 @@ async function calculateSha256(filePath) {
 }
 
 async function generateIsometricPreview(inputPath, outputPath) {
+    console.log(`Starting render for: ${inputPath}`);
     const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
     global.document = dom.window.document;
     global.window = dom.window;
@@ -47,6 +48,7 @@ async function generateIsometricPreview(inputPath, outputPath) {
     const buffer = canvas.toBuffer('image/webp', { quality: 80 });
     await fs.writeFile(outputPath, buffer);
     viewer.dispose();
+    console.log(`Render complete: ${outputPath}`);
 }
 
 async function processSkin(character, variant, inputPath) {
@@ -71,37 +73,58 @@ async function processSkin(character, variant, inputPath) {
 }
 
 async function build() {
+    console.log('Build started. Cleaning dist directory...');
     await fs.rm(DIST_DIR, { recursive: true, force: true });
     await fs.mkdir(PREVIEWS_DIR, { recursive: true });
 
-    const characters = await fs.readdir(SKINS_DIR);
+    console.log(`Scanning directory: ${SKINS_DIR}`);
+    let characters;
+    try {
+        characters = await fs.readdir(SKINS_DIR);
+    } catch (err) {
+        console.error('Error reading skins directory:', err);
+        return;
+    }
+
     const manifest = [];
     const tasks = [];
 
     for (const character of characters) {
         const charDir = path.join(SKINS_DIR, character);
         const stat = await fs.stat(charDir);
-        if (!stat.isDirectory()) continue;
+        if (!stat.isDirectory()) {
+            console.log(`Skipping non-directory: ${character}`);
+            continue;
+        }
 
+        console.log(`Processing character: ${character}`);
         const files = await fs.readdir(charDir);
         for (const file of files) {
             if (file.endsWith('.png')) {
                 const variant = path.basename(file, '.png');
                 const inputPath = path.join(charDir, file);
+                console.log(`Found skin: ${inputPath}`);
                 tasks.push(processSkin(character, variant, inputPath));
             }
         }
     }
 
+    if (tasks.length === 0) {
+        console.warn('No PNG files found in skins directory.');
+    }
+
+    console.log(`Starting ${tasks.length} render tasks...`);
     const results = await Promise.all(tasks);
     manifest.push(...results);
 
-    await fs.writeFile(
-        path.join(DIST_DIR, 'data.json'),
-        JSON.stringify(manifest, null, 2)
-    );
+    const outputPath = path.join(DIST_DIR, 'data.json');
+    console.log(`Writing manifest to: ${outputPath}`);
+    await fs.writeFile(outputPath, JSON.stringify(manifest, null, 2));
 
     console.log(`Build complete. Processed ${manifest.length} skins.`);
+
+    const distFiles = await fs.readdir(DIST_DIR);
+    console.log('Dist directory contents:', distFiles);
 }
 
 build().catch(console.error);
