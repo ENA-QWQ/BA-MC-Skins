@@ -1,8 +1,12 @@
 import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
-import { createCanvas } from '@napi-rs/canvas';
-import { SkinViewer } from 'skinview3d/node';
+import { Image } from 'canvas';
+import { JSDOM } from 'jsdom';
+import { SkinViewer } from 'skinview3d';
+import * as THREE from 'three';
+import gl from 'gl';
+import sharp from 'sharp';
 
 const SKINS_DIR = path.join(process.cwd(), 'skins');
 const DIST_DIR = path.join(process.cwd(), 'dist');
@@ -20,9 +24,28 @@ async function calculateSha256(filePath) {
 async function generateIsometricPreview(inputPath, outputPath) {
     console.log(`Starting render for: ${inputPath}`);
 
+    const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
+    global.document = dom.window.document;
+    global.window = dom.window;
+    global.Image = Image;
+    global.HTMLCanvasElement = dom.window.HTMLCanvasElement;
+
     const width = 256;
     const height = 256;
-    const canvas = createCanvas(width, height);
+
+    const glContext = gl(width, height, { preserveDrawingBuffer: true });
+    if (!glContext) {
+        throw new Error('Failed to create WebGL context using headless-gl.');
+    }
+
+    const canvas = {
+        width,
+        height,
+        style: {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        getContext: () => glContext,
+    };
 
     const viewer = new SkinViewer({
         canvas: canvas,
@@ -33,16 +56,25 @@ async function generateIsometricPreview(inputPath, outputPath) {
 
     viewer.autoRotate = false;
     viewer.playerObject.rotation.set(
-        Math.PI / 6,
-        Math.PI / 4,
+        THREE.MathUtils.degToRad(30),
+        THREE.MathUtils.degToRad(45),
         0
     );
 
     viewer.render();
 
-    const buffer = await canvas.encode('webp', { quality: 80 });
-    await fs.writeFile(outputPath, buffer);
+    const pixels = new Uint8Array(width * height * 4);
+    glContext.readPixels(0, 0, width, height, glContext.RGBA, glContext.UNSIGNED_BYTE, pixels);
 
+    const buffer = await sharp(pixels, {
+        raw: { width, height, channels: 4 },
+    })
+        .flip()
+        .webp({ quality: 80 })
+        .toBuffer();
+
+    await fs.writeFile(outputPath, buffer);
+    viewer.dispose();
     console.log(`Render complete: ${outputPath}`);
 }
 
