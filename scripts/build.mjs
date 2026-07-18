@@ -1,10 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
-import { createCanvas, Image } from 'canvas';
-import { JSDOM } from 'jsdom';
-import { SkinViewer } from 'skinview3d';
-import * as THREE from 'three';
+import { createCanvas } from '@napi-rs/canvas';
+import { SkinViewer } from 'skinview3d/node';
 
 const SKINS_DIR = path.join(process.cwd(), 'skins');
 const DIST_DIR = path.join(process.cwd(), 'dist');
@@ -21,10 +19,6 @@ async function calculateSha256(filePath) {
 
 async function generateIsometricPreview(inputPath, outputPath) {
     console.log(`Starting render for: ${inputPath}`);
-    const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-    global.document = dom.window.document;
-    global.window = dom.window;
-    global.Image = Image;
 
     const width = 256;
     const height = 256;
@@ -39,15 +33,16 @@ async function generateIsometricPreview(inputPath, outputPath) {
 
     viewer.autoRotate = false;
     viewer.playerObject.rotation.set(
-        THREE.MathUtils.degToRad(30),
-        THREE.MathUtils.degToRad(45),
+        Math.PI / 6,
+        Math.PI / 4,
         0
     );
 
     viewer.render();
-    const buffer = canvas.toBuffer('image/webp', { quality: 80 });
+
+    const buffer = await canvas.encode('webp', { quality: 80 });
     await fs.writeFile(outputPath, buffer);
-    viewer.dispose();
+
     console.log(`Render complete: ${outputPath}`);
 }
 
@@ -60,7 +55,7 @@ async function processSkin(character, variant, inputPath) {
     await generateIsometricPreview(inputPath, previewPath);
 
     const downloadUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/skins/${character}/${fileName}.png`;
-    const previewUrl = `/previews/${previewFileName}`;
+    const previewUrl = `./previews/${previewFileName}`;
 
     return {
         id: `${character}_${variant}`,
