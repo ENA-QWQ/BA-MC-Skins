@@ -30,7 +30,6 @@ async function processSkin(character, variant, inputPath) {
 }
 
 async function build() {
-    await fs.rm(DIST_DIR, { recursive: true, force: true });
     await fs.mkdir(DIST_DIR, { recursive: true });
 
     const characters = await fs.readdir(SKINS_DIR);

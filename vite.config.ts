@@ -6,6 +6,9 @@ export default defineConfig({
     base: '/BA-MC-Skins/',
     build: {
         outDir: 'dist',
-        emptyOutDir: true
+        emptyOutDir: true,
+    },
+    resolve: {
+        dedupe: ['three']
     }
 })
