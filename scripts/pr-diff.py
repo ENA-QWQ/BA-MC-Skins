@@ -48,6 +48,8 @@ for file_path in changed_files:
     except subprocess.CalledProcessError:
         pass
 
+    print(f"Processing {file_path}: old_path exists = {old_path is not None}")
+
     output_filename = f'diff_{base_name}.png'
     final_path = f'/tmp/{output_filename}'
 
@@ -72,12 +74,14 @@ for file_path in changed_files:
             combined.paste(old_scaled, (0, 0))
             combined.paste(new_scaled, (old_scaled.width + gap, 0))
             combined.save(final_path, 'PNG')
+            print(f"Saved side-by-side for {file_path}")
         else:
             new_scaled = img_new.resize(
                 (img_new.width * scale, img_new.height * scale),
                 Image.Resampling.NEAREST
             )
             new_scaled.save(final_path, 'PNG')
+            print(f"Saved scaled new only for {file_path} ")
 
         diff_images.append({
             'path': final_path,
