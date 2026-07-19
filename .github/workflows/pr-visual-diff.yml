@@ -34,16 +34,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
         run: |
-          git fetch origin pr-artifacts || git branch pr-artifacts
-          git checkout pr-artifacts || git checkout --orphan pr-artifacts
+          git fetch origin pr-artifacts || true
+          git checkout pr-artifacts 2>/dev/null || git checkout --orphan pr-artifacts
           git rm -rf . > /dev/null 2>&1 || true
           mkdir -p pr-$PR_NUMBER
           while IFS= read -r file; do
-            cp "$file" pr-$PR_NUMBER/
+            filename=$(basename "$file")
+            cp "$file" pr-$PR_NUMBER/"$filename"
           done < artifact-files.txt
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "github-actions[bot]@users.github.com"
           git add .
           git commit -m "Artifacts for PR #$PR_NUMBER" || echo "No changes to commit"
           git push -f origin pr-artifacts
+          sed -i 's|diff-images/||g' pr_comment.md
           gh pr comment $PR_NUMBER --body-file pr_comment.md
