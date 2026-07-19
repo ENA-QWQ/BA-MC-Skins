@@ -1,16 +1,9 @@
 import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
-import { Image } from 'canvas';
-import { JSDOM } from 'jsdom';
-import { SkinViewer } from 'skinview3d';
-import * as THREE from 'three';
-import gl from 'gl';
-import sharp from 'sharp';
 
 const SKINS_DIR = path.join(process.cwd(), 'skins');
 const DIST_DIR = path.join(process.cwd(), 'dist');
-const PREVIEWS_DIR = path.join(DIST_DIR, 'previews');
 
 const REPO_OWNER = 'ENA-QWQ';
 const REPO_NAME = 'BA-MC-Skins';
@@ -21,137 +14,53 @@ async function calculateSha256(filePath) {
     return crypto.createHash('sha256').update(fileBuffer).digest('hex');
 }
 
-async function generateIsometricPreview(inputPath, outputPath) {
-    console.log(`Starting render for: ${inputPath}`);
-
-    const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-    global.document = dom.window.document;
-    global.window = dom.window;
-    global.Image = Image;
-    global.HTMLCanvasElement = dom.window.HTMLCanvasElement;
-
-    const width = 256;
-    const height = 256;
-
-    const glContext = gl(width, height, { preserveDrawingBuffer: true });
-    if (!glContext) {
-        throw new Error('Failed to create WebGL context using headless-gl.');
-    }
-
-    const canvas = {
-        width,
-        height,
-        style: {},
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        getContext: () => glContext,
-    };
-
-    const viewer = new SkinViewer({
-        canvas: canvas,
-        width: width,
-        height: height,
-        skin: inputPath,
-    });
-
-    viewer.autoRotate = false;
-    viewer.playerObject.rotation.set(
-        THREE.MathUtils.degToRad(30),
-        THREE.MathUtils.degToRad(45),
-        0
-    );
-
-    viewer.render();
-
-    const pixels = new Uint8Array(width * height * 4);
-    glContext.readPixels(0, 0, width, height, glContext.RGBA, glContext.UNSIGNED_BYTE, pixels);
-
-    const buffer = await sharp(pixels, {
-        raw: { width, height, channels: 4 },
-    })
-        .flip()
-        .webp({ quality: 80 })
-        .toBuffer();
-
-    await fs.writeFile(outputPath, buffer);
-    viewer.dispose();
-    console.log(`Render complete: ${outputPath}`);
-}
-
 async function processSkin(character, variant, inputPath) {
     const fileName = path.basename(inputPath, '.png');
     const sha256 = await calculateSha256(inputPath);
-    const previewFileName = `${character}_${variant}.webp`;
-    const previewPath = path.join(PREVIEWS_DIR, previewFileName);
-
-    await generateIsometricPreview(inputPath, previewPath);
 
     const downloadUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/skins/${character}/${fileName}.png`;
-    const previewUrl = `./previews/${previewFileName}`;
 
     return {
         id: `${character}_${variant}`,
         character,
         variant,
-        previewUrl,
         downloadUrl,
         sha256
     };
 }
 
 async function build() {
-    console.log('Build started. Cleaning dist directory...');
     await fs.rm(DIST_DIR, { recursive: true, force: true });
-    await fs.mkdir(PREVIEWS_DIR, { recursive: true });
+    await fs.mkdir(DIST_DIR, { recursive: true });
 
-    console.log(`Scanning directory: ${SKINS_DIR}`);
-    let characters;
-    try {
-        characters = await fs.readdir(SKINS_DIR);
-    } catch (err) {
-        console.error('Error reading skins directory:', err);
-        return;
-    }
-
+    const characters = await fs.readdir(SKINS_DIR);
     const manifest = [];
     const tasks = [];
 
     for (const character of characters) {
         const charDir = path.join(SKINS_DIR, character);
         const stat = await fs.stat(charDir);
-        if (!stat.isDirectory()) {
-            console.log(`Skipping non-directory: ${character}`);
-            continue;
-        }
+        if (!stat.isDirectory()) continue;
 
-        console.log(`Processing character: ${character}`);
         const files = await fs.readdir(charDir);
         for (const file of files) {
             if (file.endsWith('.png')) {
                 const variant = path.basename(file, '.png');
                 const inputPath = path.join(charDir, file);
-                console.log(`Found skin: ${inputPath}`);
                 tasks.push(processSkin(character, variant, inputPath));
             }
         }
     }
 
-    if (tasks.length === 0) {
-        console.warn('No PNG files found in skins directory.');
-    }
-
-    console.log(`Starting ${tasks.length} render tasks...`);
     const results = await Promise.all(tasks);
     manifest.push(...results);
 
-    const outputPath = path.join(DIST_DIR, 'data.json');
-    console.log(`Writing manifest to: ${outputPath}`);
-    await fs.writeFile(outputPath, JSON.stringify(manifest, null, 2));
+    await fs.writeFile(
+        path.join(DIST_DIR, 'data.json'),
+        JSON.stringify(manifest, null, 2)
+    );
 
     console.log(`Build complete. Processed ${manifest.length} skins.`);
-
-    const distFiles = await fs.readdir(DIST_DIR);
-    console.log('Dist directory contents:', distFiles);
 }
 
 build().catch(console.error);
