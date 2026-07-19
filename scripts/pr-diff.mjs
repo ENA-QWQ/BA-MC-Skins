@@ -24,23 +24,23 @@ commentBody += '> Red areas indicate modified pixels.\n\n';
 for (const file of changedFiles) {
     if (!fs.existsSync(file)) continue;
 
-    const fileName = path.basename(file);
+    const baseName = path.basename(file, path.extname(file));
     let oldPath = null;
 
     try {
         execSync(`git cat-file -e ${baseSha}:${file}`, { stdio: 'ignore' });
-        oldPath = `/tmp/old_${fileName}`;
+        oldPath = `/tmp/old_${baseName}.png`;
         execSync(`git show ${baseSha}:${file} > ${oldPath}`);
     } catch (e) {}
 
-    const finalPath = `/tmp/final_${fileName}.png`;
+    const finalPath = `/tmp/final_${baseName}.png`;
 
     try {
         let command;
         if (oldPath) {
-            const scaledOld = `/tmp/scaled_old_${fileName}.png`;
-            const scaledNew = `/tmp/scaled_new_${fileName}.png`;
-            const maskPath = `/tmp/mask_${fileName}.png`;
+            const scaledOld = `/tmp/scaled_old_${baseName}.png`;
+            const scaledNew = `/tmp/scaled_new_${baseName}.png`;
+            const maskPath = `/tmp/mask_${baseName}.png`;
 
             command = [
                 `convert "${oldPath}" -scale ${scale * 100}% "${scaledOld}"`,
@@ -58,7 +58,7 @@ for (const file of changedFiles) {
         const base64 = buffer.toString('base64');
 
         commentBody += `**${file}**\n`;
-        commentBody += `![${fileName}](data:image/png;base64,${base64})\n\n`;
+        commentBody += `![${baseName}](data:image/png;base64,${base64})\n\n`;
     } catch (err) {
         console.error(`Failed to process diff for ${file}:`, err.message);
     }
