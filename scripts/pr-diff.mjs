@@ -4,47 +4,30 @@ import path from 'path';
 
 const baseSha = process.env.BASE_SHA;
 const headSha = process.env.HEAD_SHA;
-
-console.log(`Comparing ${baseSha} to ${headSha}`);
-
-let allChanges = '';
-try {
-    allChanges = execSync(`git diff --name-only ${baseSha} ${headSha}`).toString().trim();
-    console.log('All changed files:', allChanges);
-} catch (e) {
-    console.error('Git diff failed:', e.message);
-    process.exit(1);
-}
-
-if (!allChanges) {
-    console.log('No changes detected at all.');
-    process.exit(0);
-}
+const scale = 4;
 
 let diffOutput = '';
 try {
     diffOutput = execSync(`git diff --name-only ${baseSha} ${headSha} -- 'skins/**/*.png'`).toString().trim();
 } catch (e) {
-    console.error('Filtering for skins failed:', e.message);
     process.exit(0);
 }
 
-console.log('Skin changes detected:', diffOutput || 'None');
-
 if (!diffOutput) {
-    console.log('No skin changes detected, skipping comment.');
-    fs.writeFileSync('pr_comment.md', '');
     process.exit(0);
 }
 
 const changedFiles = diffOutput.split('\n');
+const outputDir = 'diff-output';
+if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir);
+}
+
 let commentBody = '### Skin Visual Diff\n\n';
+commentBody += '> **Note:** Red areas indicate modified pixels. \n\n';
 
 for (const file of changedFiles) {
-    if (!fs.existsSync(file)) {
-        console.warn(`File not found: ${file}`);
-        continue;
-    }
+    if (!fs.existsSync(file)) continue;
 
     const fileName = path.basename(file);
     let oldPath = null;
@@ -53,27 +36,26 @@ for (const file of changedFiles) {
         execSync(`git cat-file -e ${baseSha}:${file}`, { stdio: 'ignore' });
         oldPath = `/tmp/old_${fileName}`;
         execSync(`git show ${baseSha}:${file} > ${oldPath}`);
-    } catch (e) {
-        console.log(`New file detected: ${file}`);
-    }
+    } catch (e) {}
 
-    const diffPath = `/tmp/diff_${fileName}.png`;
+    const diffPath = path.join(outputDir, `diff_${fileName}`);
 
     try {
+        let command;
         if (oldPath) {
-            execSync(`convert "${oldPath}" "${file}" +append "${diffPath}"`);
-        } else {
-            fs.copyFileSync(file, diffPath);
-        }
+            const maskPath = `/tmp/mask_${fileName}.png`;
+            const highlightPath = `/tmp/highlight_${fileName}.png`;
 
-        const buffer = fs.readFileSync(diffPath);
-        const base64 = buffer.toString('base64');
+            command = `convert "${oldPath}" "${file}" -compose src -composite -fuzz 1% -metric AE -highlight-color "rgba(255, 0, 0, 0.5)" -lowlight-color "transparent" -compare "${maskPath}" && convert "${file}" "${maskPath}" -compose over -composite -scale ${scale}x${scale}! "${diffPath}"`;
+        } else {
+            command = `convert "${file}" -scale ${scale}x${scale}! "${diffPath}"`;
+        }
+        execSync(command);
 
         commentBody += `**${file}**\n`;
-        commentBody += `![${fileName}](data:image/png;base64,${base64})\n\n`;
+        commentBody += `![${fileName}](./diff-output/diff_${fileName})\n\n`;
     } catch (err) {
         console.error(`Failed to process diff for ${file}:`, err.message);
-        commentBody += `**${file}** (Diff generation failed)\n\n`;
     }
 }
 
