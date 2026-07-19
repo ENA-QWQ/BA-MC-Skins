@@ -22,23 +22,28 @@ jobs:
         run: pip install Pillow
 
       - name: Generate Visual Diff
-        id: diff
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.number }}
-        run: |
-          python scripts/pr-diff.py
-          echo "ARTIFACT_LIST=$(cat artifact-files.txt | tr '\n' ' ')" >> $GITHUB_ENV
+        run: python scripts/pr-diff.py
 
       - name: Upload artifacts and post comment
-        uses: gavv/pull-request-artifacts@v2
-        with:
-          commit: ${{ github.event.pull_request.head.sha }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts-branch: pr-artifacts
-          artifacts-prefix: pr-${{ github.event.number }}/
-          artifacts: ${{ env.ARTIFACT_LIST }}
-          comment-message: ${{ steps.diff.outputs.comment_body }}
-          comment-style: text
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          git fetch origin pr-artifacts || git branch pr-artifacts
+          git checkout pr-artifacts || git checkout --orphan pr-artifacts
+          git rm -rf . > /dev/null 2>&1 || true
+          mkdir -p pr-$PR_NUMBER
+          while IFS= read -r file; do
+            cp "$file" pr-$PR_NUMBER/
+          done < artifact-files.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Artifacts for PR #$PR_NUMBER" || echo "No changes to commit"
+          git push -f origin pr-artifacts
+          gh pr comment $PR_NUMBER --body-file pr_comment.md
