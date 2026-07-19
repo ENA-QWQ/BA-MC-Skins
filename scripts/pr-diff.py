@@ -2,7 +2,7 @@
 import os
 import sys
 import subprocess
-from PIL import Image, ImageChops, ImageDraw
+from PIL import Image
 
 base_sha = os.environ.get('BASE_SHA')
 head_sha = os.environ.get('HEAD_SHA')
@@ -11,6 +11,7 @@ if not base_sha or not head_sha:
     sys.exit(1)
 
 scale = 4
+gap = 10
 
 try:
     diff_output = subprocess.check_output(
@@ -51,39 +52,32 @@ for file_path in changed_files:
     final_path = f'/tmp/{output_filename}'
 
     try:
+        img_new = Image.open(file_path).convert('RGBA')
+
         if old_path:
             img_old = Image.open(old_path).convert('RGBA')
-            img_new = Image.open(file_path).convert('RGBA')
-
             if img_old.size != img_new.size:
                 img_old = img_old.resize(img_new.size, Image.Resampling.LANCZOS)
-
-            new_size = (img_new.width * scale, img_new.height * scale)
-            img_old = img_old.resize(new_size, Image.Resampling.NEAREST)
-            img_new = img_new.resize(new_size, Image.Resampling.NEAREST)
-
-            diff_img = ImageChops.difference(img_old, img_new)
-
-            mask = Image.new('RGBA', img_new.size, (0, 0, 0, 0))
-            draw = ImageDraw.Draw(mask)
-            pixels = diff_img.load()
-            for x in range(diff_img.width):
-                for y in range(diff_img.height):
-                    r, g, b, a = pixels[x, y]
-                    if r > 10 or g > 10 or b > 10:
-                        draw.ellipse(
-                            (x-2, y-2, x+2, y+2),
-                            fill=(255, 0, 0, 180)
-                        )
-
-            result = Image.alpha_composite(img_new, mask)
-            result.save(final_path, 'PNG')
-
+            old_scaled = img_old.resize(
+                (img_old.width * scale, img_old.height * scale),
+                Image.Resampling.NEAREST
+            )
+            new_scaled = img_new.resize(
+                (img_new.width * scale, img_new.height * scale),
+                Image.Resampling.NEAREST
+            )
+            total_width = old_scaled.width + gap + new_scaled.width
+            total_height = max(old_scaled.height, new_scaled.height)
+            combined = Image.new('RGBA', (total_width, total_height), (0, 0, 0, 0))
+            combined.paste(old_scaled, (0, 0))
+            combined.paste(new_scaled, (old_scaled.width + gap, 0))
+            combined.save(final_path, 'PNG')
         else:
-            img_new = Image.open(file_path).convert('RGBA')
-            new_size = (img_new.width * scale, img_new.height * scale)
-            img_new = img_new.resize(new_size, Image.Resampling.NEAREST)
-            img_new.save(final_path, 'PNG')
+            new_scaled = img_new.resize(
+                (img_new.width * scale, img_new.height * scale),
+                Image.Resampling.NEAREST
+            )
+            new_scaled.save(final_path, 'PNG')
 
         diff_images.append({
             'path': final_path,
@@ -101,9 +95,9 @@ os.makedirs('diff-images', exist_ok=True)
 for img in diff_images:
     os.rename(img['path'], f'diff-images/{img["filename"]}')
 
-comment_body = "### Skin Visual Diff\n\n> Red areas indicate modified pixels.\n\n"
+comment_body = "### Skin Visual Diff\n\n> Left: old version, Right: new version.\n\n"
 for img in diff_images:
-    image_url = f"https://raw.githubusercontent.com/{os.environ.get('GITHUB_REPOSITORY')}/pr-artifacts/pr-{os.environ.get('PR_NUMBER')}/diff-images/{img['filename']}"
+    image_url = f"https://raw.githubusercontent.com/{os.environ.get('GITHUB_REPOSITORY')}/pr-artifacts/pr-{os.environ.get('PR_NUMBER')}/{img['filename']}"
     comment_body += f"**{img['file_path']}**\n"
     comment_body += f"![{img['filename']}]({image_url})\n\n"
 
