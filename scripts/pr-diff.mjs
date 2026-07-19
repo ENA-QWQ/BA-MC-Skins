@@ -19,7 +19,7 @@ if (!diffOutput) {
 
 const changedFiles = diffOutput.split('\n');
 let commentBody = '### Skin Visual Diff\n\n';
-commentBody += '> Red areas indicate modified pixels (Scaled 4x).\n\n';
+commentBody += '> Red areas indicate modified pixels.\n\n';
 
 for (const file of changedFiles) {
     if (!fs.existsSync(file)) continue;
@@ -45,7 +45,7 @@ for (const file of changedFiles) {
             command = [
                 `convert "${oldPath}" -scale ${scale * 100}% "${scaledOld}"`,
                 `convert "${file}" -scale ${scale * 100}% "${scaledNew}"`,
-                `convert "${scaledOld}" "${scaledNew}" -compose difference -composite -threshold 1% -negate "${maskPath}"`,
+                `magick compare -compose src -highlight-color white -lowlight-color black "${scaledOld}" "${scaledNew}" "${maskPath}"`,
                 `convert "${maskPath}" -fill "rgba(255,0,0,0.5)" -opaque white -transparent black "${maskPath}"`,
                 `convert "${scaledNew}" "${maskPath}" -compose over -composite "${finalPath}"`
             ].join(' && ');
