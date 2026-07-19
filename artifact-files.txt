@@ -1,0 +1,1 @@
+diff-images/diff_default.png
