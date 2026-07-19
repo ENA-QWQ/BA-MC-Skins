@@ -24,7 +24,7 @@ if not diff_output:
     sys.exit(0)
 
 changed_files = diff_output.split('\n')
-comment_body = "### Skin Visual Diff\n\n> Red areas indicate modified pixels.\n\n"
+diff_images = []
 
 for file_path in changed_files:
     if not os.path.exists(file_path):
@@ -47,11 +47,11 @@ for file_path in changed_files:
     except subprocess.CalledProcessError:
         pass
 
-    final_path = f'/tmp/final_{base_name}.png'
+    output_filename = f'diff_{base_name}.png'
+    final_path = f'/tmp/{output_filename}'
 
     try:
         if old_path:
-            # 3. 打开并缩放图片
             img_old = Image.open(old_path).convert('RGBA')
             img_new = Image.open(file_path).convert('RGBA')
 
@@ -85,16 +85,33 @@ for file_path in changed_files:
             img_new = img_new.resize(new_size, Image.Resampling.NEAREST)
             img_new.save(final_path, 'PNG')
 
-        with open(final_path, 'rb') as f:
-            import base64
-            img_base64 = base64.b64encode(f.read()).decode('utf-8')
-
-        comment_body += f"**{file_path}**\n"
-        comment_body += f"![{base_name}](data:image/png;base64,{img_base64})\n\n"
+        diff_images.append({
+            'path': final_path,
+            'filename': output_filename,
+            'file_path': file_path
+        })
 
     except Exception as e:
         print(f"Failed to process diff for {file_path}: {e}")
 
+if not diff_images:
+    sys.exit(0)
+
+os.makedirs('diff-images', exist_ok=True)
+for img in diff_images:
+    os.rename(img['path'], f'diff-images/{img["filename"]}')
+
+comment_body = "### Skin Visual Diff\n\n> Red areas indicate modified pixels.\n\n"
+for img in diff_images:
+    image_url = f"https://raw.githubusercontent.com/{os.environ.get('GITHUB_REPOSITORY')}/pr-artifacts/pr-{os.environ.get('PR_NUMBER')}/diff-images/{img['filename']}"
+    comment_body += f"**{img['file_path']}**\n"
+    comment_body += f"![{img['filename']}]({image_url})\n\n"
+
 with open('pr_comment.md', 'w') as f:
     f.write(comment_body)
-print('Comment body written to pr_comment.md')
+
+with open('artifact-files.txt', 'w') as f:
+    for img in diff_images:
+        f.write(f"diff-images/{img['filename']}\n")
+
+print('Comment body and artifact file list written')
