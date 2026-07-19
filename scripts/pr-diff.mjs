@@ -45,7 +45,8 @@ for (const file of changedFiles) {
             command = [
                 `convert "${oldPath}" -scale ${scale * 100}% "${scaledOld}"`,
                 `convert "${file}" -scale ${scale * 100}% "${scaledNew}"`,
-                `compare -compose src -highlight-color white -lowlight-color black "${scaledOld}" "${scaledNew}" "${maskPath}"`,
+                // 将 -compose src 移到命令末尾
+                `compare "${scaledOld}" "${scaledNew}" -highlight-color white -lowlight-color black -compose src "${maskPath}"`,
                 `convert "${maskPath}" -fill "rgba(255,0,0,0.5)" -opaque white -transparent black "${maskPath}"`,
                 `convert "${scaledNew}" "${maskPath}" -compose over -composite "${finalPath}"`
             ].join(' && ');
