@@ -70,22 +70,26 @@ for file_path in changed_files:
             )
 
             diff = ImageChops.difference(old_scaled, new_scaled)
-            mask = Image.new('RGBA', new_scaled.size, (0, 0, 0, 0))
-            mask_pixels = mask.load()
+            new_highlighted = new_scaled.copy()
+            new_pixels = new_highlighted.load()
             diff_pixels = diff.load()
             for x in range(diff.width):
                 for y in range(diff.height):
                     r, g, b, a = diff_pixels[x, y]
                     if r > threshold or g > threshold or b > threshold:
-                        mask_pixels[x, y] = (255, 0, 0, 180)
+                        orig_r, orig_g, orig_b, orig_a = new_pixels[x, y]
+                        new_pixels[x, y] = (
+                            int(orig_r * 0.3 + 255 * 0.7),
+                            int(orig_g * 0.3),
+                            int(orig_b * 0.3),
+                            orig_a
+                        )
 
-            highlighted_new = Image.alpha_composite(new_scaled, mask)
-
-            total_width = old_scaled.width + gap + highlighted_new.width
-            total_height = max(old_scaled.height, highlighted_new.height)
+            total_width = old_scaled.width + gap + new_highlighted.width
+            total_height = max(old_scaled.height, new_highlighted.height)
             combined = Image.new('RGBA', (total_width, total_height), (0, 0, 0, 0))
             combined.paste(old_scaled, (0, 0))
-            combined.paste(highlighted_new, (old_scaled.width + gap, 0))
+            combined.paste(new_highlighted, (old_scaled.width + gap, 0))
             combined.save(final_path, 'PNG')
         else:
             new_scaled = img_new.resize(
