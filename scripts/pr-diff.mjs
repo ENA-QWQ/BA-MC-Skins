@@ -19,7 +19,7 @@ if (!diffOutput) {
 
 const changedFiles = diffOutput.split('\n');
 let commentBody = '### Skin Visual Diff\n\n';
-commentBody += '> Red areas indicate modified pixels.\n\n';
+commentBody += '> Red areas indicate modified pixels (Scaled 4x).\n\n';
 
 for (const file of changedFiles) {
     if (!fs.existsSync(file)) continue;
@@ -38,17 +38,19 @@ for (const file of changedFiles) {
     try {
         let command;
         if (oldPath) {
-            const maskPath = `/tmp/mask_${fileName}.png`;
+            const scaledOld = `/tmp/scaled_old_${fileName}.png`;
             const scaledNew = `/tmp/scaled_new_${fileName}.png`;
+            const maskPath = `/tmp/mask_${fileName}.png`;
 
             command = [
-                `convert "${file}" -scale ${scale}x${scale}! "${scaledNew}"`,
-                `convert "${oldPath}" -scale ${scale}x${scale}! "${file}" -scale ${scale}x${scale}! -compose difference -composite -threshold 0 -negate "${maskPath}"`,
-                `convert "${maskPath}" -fill "rgba(255,0,0,0.6)" -opaque white -transparent black "${maskPath}"`,
+                `convert "${oldPath}" -scale ${scale * 100}% "${scaledOld}"`,
+                `convert "${file}" -scale ${scale * 100}% "${scaledNew}"`,
+                `convert "${scaledOld}" "${scaledNew}" -compose difference -composite -threshold 1% -negate "${maskPath}"`,
+                `convert "${maskPath}" -fill "rgba(255,0,0,0.5)" -opaque white -transparent black "${maskPath}"`,
                 `convert "${scaledNew}" "${maskPath}" -compose over -composite "${finalPath}"`
             ].join(' && ');
         } else {
-            command = `convert "${file}" -scale ${scale}x${scale}! "${finalPath}"`;
+            command = `convert "${file}" -scale ${scale * 100}% "${finalPath}"`;
         }
         execSync(command);
 
