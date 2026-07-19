@@ -22,12 +22,15 @@ jobs:
         run: pip install Pillow
 
       - name: Generate Visual Diff
+        id: diff
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.number }}
-        run: python scripts/pr-diff.py
+        run: |
+          python scripts/pr-diff.py
+          echo "ARTIFACT_LIST=$(cat artifact-files.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
       - name: Upload artifacts and post comment
         uses: gavv/pull-request-artifacts@v2
@@ -36,6 +39,6 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           artifacts-branch: pr-artifacts
           artifacts-prefix: pr-${{ github.event.number }}/
-          artifacts: $(cat artifact-files.txt)
-          comment-message: $(cat pr_comment.md)
+          artifacts: ${{ env.ARTIFACT_LIST }}
+          comment-message: ${{ steps.diff.outputs.comment_body }}
           comment-style: text
