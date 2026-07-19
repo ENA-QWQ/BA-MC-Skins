@@ -21,11 +21,14 @@ jobs:
       - name: Install ImageMagick
         run: sudo apt-get update && sudo apt-get install -y imagemagick
 
+      - name: Install Python dependencies
+        run: pip install Pillow
+
       - name: Generate Visual Diff
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: node scripts/pr-diff.mjs
+        run: python scripts/pr-diff.py
 
       - name: Post Comment to PR
         if: hashFiles('pr_comment.md') != ''
