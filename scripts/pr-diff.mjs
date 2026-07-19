@@ -44,9 +44,12 @@ for (const file of changedFiles) {
         let command;
         if (oldPath) {
             const maskPath = `/tmp/mask_${fileName}.png`;
-            const highlightPath = `/tmp/highlight_${fileName}.png`;
 
-            command = `convert "${oldPath}" "${file}" -compose src -composite -fuzz 1% -metric AE -highlight-color "rgba(255, 0, 0, 0.5)" -lowlight-color "transparent" -compare "${maskPath}" && convert "${file}" "${maskPath}" -compose over -composite -scale ${scale}x${scale}! "${diffPath}"`;
+            command = [
+                `convert "${oldPath}" "${file}" -compose difference -composite -threshold 0 -negate "${maskPath}"`,
+                `convert "${maskPath}" -fill "rgba(255,0,0,0.6)" -opaque white -transparent black "${maskPath}"`,
+                `convert "${file}" -scale ${scale}x${scale}! "${maskPath}" -scale ${scale}x${scale}! -compose over -composite "${diffPath}"`
+            ].join(' && ');
         } else {
             command = `convert "${file}" -scale ${scale}x${scale}! "${diffPath}"`;
         }
