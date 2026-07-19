@@ -33,7 +33,7 @@ console.log('Skin changes detected:', diffOutput || 'None');
 
 if (!diffOutput) {
     console.log('No skin changes detected, skipping comment.');
-    fs.writeFileSync('/tmp/pr_comment.md', '');
+    fs.writeFileSync('pr_comment.md', '');
     process.exit(0);
 }
 
@@ -77,5 +77,5 @@ for (const file of changedFiles) {
     }
 }
 
-fs.writeFileSync('/tmp/pr_comment.md', commentBody);
-console.log('Comment body written to /tmp/pr_comment.md');
+fs.writeFileSync('pr_comment.md', commentBody);
+console.log('Comment body written to pr_comment.md');
