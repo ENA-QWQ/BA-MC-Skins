@@ -45,7 +45,7 @@ for (const file of changedFiles) {
             command = [
                 `convert "${oldPath}" -scale ${scale * 100}% "${scaledOld}"`,
                 `convert "${file}" -scale ${scale * 100}% "${scaledNew}"`,
-                `magick compare -compose src -highlight-color white -lowlight-color black "${scaledOld}" "${scaledNew}" "${maskPath}"`,
+                `compare -compose src -highlight-color white -lowlight-color black "${scaledOld}" "${scaledNew}" "${maskPath}"`,
                 `convert "${maskPath}" -fill "rgba(255,0,0,0.5)" -opaque white -transparent black "${maskPath}"`,
                 `convert "${scaledNew}" "${maskPath}" -compose over -composite "${finalPath}"`
             ].join(' && ');
