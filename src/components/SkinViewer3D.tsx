@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SkinViewer } from 'skinview3d';
 import * as THREE from 'three';
 
@@ -12,32 +12,44 @@ interface SkinViewer3DProps {
 export function SkinViewer3D({ skinUrl, width = 200, height = 400, autoRotate = true }: SkinViewer3DProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const viewerRef = useRef<SkinViewer | null>(null);
+    const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
         if (!canvasRef.current) return;
 
-        const viewer = new SkinViewer({
-            canvas: canvasRef.current,
-            width,
-            height,
-            skin: skinUrl,
-        });
+        try {
+            const viewer = new SkinViewer({
+                canvas: canvasRef.current,
+                width,
+                height,
+                skin: skinUrl,
+            });
 
-        viewer.autoRotate = autoRotate;
-        viewer.autoRotateSpeed = 1.0;
+            viewer.autoRotate = autoRotate;
+            viewer.autoRotateSpeed = 1.0;
 
-        const light = new THREE.DirectionalLight(0xffffff, 0.8);
-        light.position.set(5, 10, 7);
-        viewer.scene.add(light);
-        viewer.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+            const light = new THREE.DirectionalLight(0xffffff, 0.8);
+            light.position.set(5, 10, 7);
+            viewer.scene.add(light);
+            viewer.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-        viewerRef.current = viewer;
+            viewerRef.current = viewer;
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err : new Error(String(err)));
+        }
 
         return () => {
-            viewer.dispose();
-            viewerRef.current = null;
+            if (viewerRef.current) {
+                viewerRef.current.dispose();
+                viewerRef.current = null;
+            }
         };
     }, [skinUrl, width, height, autoRotate]);
+
+    if (error) {
+        return <div style={{ padding: '20px', color: 'red', background: '#fee' }}>Skin viewer error: {error.message}</div>;
+    }
 
     return <canvas ref={canvasRef} style={{ borderRadius: '8px', background: '#f0f0f0' }} />;
 }
