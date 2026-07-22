@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { SkinViewer } from 'skinview3d';
-import * as THREE from 'three';
 
 interface SkinViewer3DProps {
     skinUrl: string;
@@ -27,11 +26,6 @@ export function SkinViewer3D({ skinUrl, width = 200, height = 400, autoRotate = 
 
             viewer.autoRotate = autoRotate;
             viewer.autoRotateSpeed = 1.0;
-
-            const light = new THREE.DirectionalLight(0xffffff, 0.8);
-            light.position.set(5, 10, 7);
-            viewer.scene.add(light);
-            viewer.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
             viewerRef.current = viewer;
             setError(null);
