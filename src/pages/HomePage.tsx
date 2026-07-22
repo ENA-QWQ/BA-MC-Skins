@@ -15,11 +15,11 @@ export function HomePage() {
         );
     }, [data, searchTerm]);
 
-    if (loading) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading assets...</div>;
-    if (error) return <div style={{ padding: '40px', textAlign: 'center', color: 'red' }}>Error: {error}</div>;
+    if (loading) return <div className="loading-text">Loading assets...</div>;
+    if (error) return <div className="error-text">Error: {error}</div>;
 
     return (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+        <div className="layout-wrapper">
             <header style={{ marginBottom: '32px', textAlign: 'center' }}>
                 <h1 style={{ fontSize: '32px', fontWeight: '800', color: '#111827', marginBottom: '16px' }}>
                     BA Minecraft Skins
@@ -29,23 +29,11 @@ export function HomePage() {
                     placeholder="Search character or variant..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{
-                        width: '100%',
-                        maxWidth: '400px',
-                        padding: '12px 16px',
-                        fontSize: '16px',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '8px',
-                        outline: 'none'
-                    }}
+                    className="search-input"
                 />
             </header>
 
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                gap: '24px'
-            }}>
+            <div className="skin-grid">
                 {filteredSkins.map((skin) => (
                     <SkinCard key={skin.id} skin={skin} />
                 ))}

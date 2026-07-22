@@ -42,8 +42,8 @@ export function SkinViewer3D({ skinUrl, width = 200, height = 400, autoRotate = 
     }, [skinUrl, width, height, autoRotate]);
 
     if (error) {
-        return <div style={{ padding: '20px', color: 'red', background: '#fee' }}>Skin viewer error: {error.message}</div>;
+        return <div style={{ padding: '20px', color: '#dc2626', background: '#fee' }}>Skin viewer error: {error.message}</div>;
     }
 
-    return <canvas ref={canvasRef} style={{ borderRadius: '8px', background: '#f0f0f0' }} />;
+    return <canvas ref={canvasRef} style={{ background: 'transparent' }} />;
 }

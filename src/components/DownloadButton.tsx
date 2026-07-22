@@ -33,16 +33,7 @@ export function DownloadButton({ url, filename }: DownloadButtonProps) {
         <button
             onClick={handleDownload}
             disabled={isDownloading}
-            style={{
-                padding: '10px 20px',
-                backgroundColor: isDownloading ? '#9ca3af' : '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: isDownloading ? 'not-allowed' : 'pointer',
-                fontWeight: 'bold',
-                fontSize: '16px'
-            }}
+            className="download-btn"
         >
             {isDownloading ? 'Downloading...' : 'Download Skin'}
         </button>
