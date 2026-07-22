@@ -9,7 +9,9 @@ interface SkinCardProps {
 export function SkinCard({ skin }: SkinCardProps) {
     return (
         <Link to={`/skin/${skin.id}`} className="skin-card">
-            <SkinViewer3D skinUrl={skin.downloadUrl} width={150} height={300} autoRotate={false} />
+            <div className="skin-viewer-container">
+                <SkinViewer3D skinUrl={skin.downloadUrl} width={150} height={300} autoRotate={false} />
+            </div>
             <div className="skin-name">{skin.character}</div>
             <div className="skin-variant">{skin.variant.replace(/_/g, ' ')}</div>
         </Link>

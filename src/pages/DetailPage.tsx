@@ -14,30 +14,24 @@ export function DetailPage() {
 
     if (!skin) {
         return (
-            <div className="layout-wrapper" style={{ textAlign: 'center', paddingTop: '40px' }}>
+            <div className="not-found">
                 <h2>Skin not found</h2>
-                <Link to="/" className="detail-back" style={{ marginTop: '16px', display: 'inline-block' }}>
-                    ← Back to Gallery
-                </Link>
+                <Link to="/" className="back-link">← Back to Gallery</Link>
             </div>
         );
     }
 
     return (
-        <div className="layout-wrapper">
-            <Link to="/" className="detail-back">
-                ← Back to Gallery
-            </Link>
-
-            <div className="detail-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <SkinViewer3D skinUrl={skin.downloadUrl} width={300} height={600} autoRotate={true} />
-
-                <div style={{ marginTop: '32px', textAlign: 'center', width: '100%' }}>
-                    <h1 className="detail-title">{skin.character}</h1>
-                    <p className="detail-variant">Variant: {skin.variant.replace(/_/g, ' ')}</p>
-
+        <div className="layout">
+            <div className="detail-container">
+                <Link to="/" className="back-link">← Back to Gallery</Link>
+                <div className="detail-card">
+                    <div className="skin-viewer-container">
+                        <SkinViewer3D skinUrl={skin.downloadUrl} width={300} height={600} autoRotate={true} />
+                    </div>
+                    <div className="detail-title">{skin.character}</div>
+                    <div className="detail-variant">Variant: {skin.variant.replace(/_/g, ' ')}</div>
                     <div className="detail-sha">SHA-256: {skin.sha256}</div>
-
                     <DownloadButton url={skin.downloadUrl} filename={`${skin.character}_${skin.variant}.png`} />
                 </div>
             </div>

@@ -19,31 +19,29 @@ export function HomePage() {
     if (error) return <div className="error-text">Error: {error}</div>;
 
     return (
-        <div className="layout-wrapper">
-            <header style={{ marginBottom: '32px', textAlign: 'center' }}>
-                <h1 style={{ fontSize: '32px', fontWeight: '800', color: '#111827', marginBottom: '16px' }}>
-                    BA Minecraft Skins
-                </h1>
-                <input
-                    type="text"
-                    placeholder="Search character or variant..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input"
-                />
-            </header>
-
-            <div className="skin-grid">
-                {filteredSkins.map((skin) => (
-                    <SkinCard key={skin.id} skin={skin} />
-                ))}
-            </div>
-
-            {filteredSkins.length === 0 && (
-                <p style={{ textAlign: 'center', color: '#6b7280', marginTop: '40px' }}>
-                    No skins found matching "{searchTerm}"
-                </p>
-            )}
+        <div className="layout">
+            <section className="section">
+                <div className="section-header">
+                    <span className="section-title">BA Minecraft Skins</span>
+                    <input
+                        type="text"
+                        placeholder="Search character or variant..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                    />
+                </div>
+                <div className="skins-grid">
+                    {filteredSkins.map((skin) => (
+                        <SkinCard key={skin.id} skin={skin} />
+                    ))}
+                </div>
+                {filteredSkins.length === 0 && (
+                    <p style={{ textAlign: 'center', color: '#6b7280', marginTop: '40px' }}>
+                        No skins found matching "{searchTerm}"
+                    </p>
+                )}
+            </section>
         </div>
     );
 }
