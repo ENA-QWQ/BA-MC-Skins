@@ -48,7 +48,6 @@ Skin variant names **must** be one of the following standard names:
 
 - `Default`
 - `Swimsuit`
-- `Summer`
 - `Sports`
 - `NewYear`
 - `Valentine`
@@ -108,7 +107,6 @@ BA-MC-Skins/
 
 - `Default`
 - `Swimsuit`
-- `Summer`
 - `Sports`
 - `NewYear`
 - `Valentine`
