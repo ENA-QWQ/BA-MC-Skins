@@ -1,7 +1,6 @@
 # BA-MC-Skins
 
 [English](#english) | [中文](#中文) <br>
-[Project Description](#project-description) | [目录结构](#目录结构) | [Contribution Guidelines](#contribution-guidelines) | [贡献要求](#贡献要求)
 
 ---
 
