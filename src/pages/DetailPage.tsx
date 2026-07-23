@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useSkinData } from '../hooks/useSkinData';
 import { SkinViewer3D } from '../components/SkinViewer3D';
 import { DownloadButton } from '../components/DownloadButton';
+import { Footer } from '../components/Footer';
 
 function formatCharacterName(id: string): string {
     return id
@@ -87,22 +88,25 @@ export function DetailPage() {
                             <span>Updated: {formattedDate}</span>
                             <span>Author: {skin.author}</span>
                         </div>
-                        <DownloadButton
-                            url={skin.downloadUrl}
-                            filename={`${skin.character}_${skin.variant}.png`}
-                        />
-                        <a
-                            href={githubEditUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="github-edit-link"
-                        >
-                            Edit this skin on GitHub
-                        </a>
+                        <div className="detail-actions">
+                            <DownloadButton
+                                url={skin.downloadUrl}
+                                filename={`${skin.character}_${skin.variant}.png`}
+                            />
+                            <a
+                                href={githubEditUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="github-edit-btn"
+                            >
+                                Edit on GitHub
+                            </a>
+                        </div>
                         <div className="detail-sha">SHA-256: {skin.sha256}</div>
                     </div>
                 </div>
             </div>
+            <Footer />
         </div>
     );
 }

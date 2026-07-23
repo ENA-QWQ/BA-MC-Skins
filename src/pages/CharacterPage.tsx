@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useSkinData } from '../hooks/useSkinData';
 import { SkinCard } from '../components/SkinCard';
+import { Footer } from '../components/Footer';
 
 function formatCharacterName(id: string): string {
     return id
@@ -72,6 +73,7 @@ export function CharacterPage() {
                     ))}
                 </div>
             </div>
+            <Footer />
         </div>
     );
 }

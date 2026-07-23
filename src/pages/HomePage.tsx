@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useSkinData } from '../hooks/useSkinData';
 import { SkinViewer3D } from '../components/SkinViewer3D';
+import { Footer } from '../components/Footer';
 
 function formatCharacterName(id: string): string {
     return id
@@ -101,6 +102,7 @@ export function HomePage() {
                     </p>
                 )}
             </section>
+            <Footer />
         </div>
     );
 }
