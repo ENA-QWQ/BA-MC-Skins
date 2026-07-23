@@ -47,6 +47,9 @@ a {
     padding-bottom: 6px;
     border-bottom: 1px solid #888;
 }
+.section-header .back-link {
+    margin-bottom: 0;
+}
 .section-title {
     font-size: 1.1rem;
     font-weight: 700;
@@ -212,6 +215,7 @@ a {
     color: #6b7280;
     position: relative;
     padding-bottom: 1px;
+    cursor: pointer;
 }
 .back-link::after {
     content: '';
@@ -258,18 +262,17 @@ a {
     color: #111827;
     margin: 0 0 4px 0;
 }
-.detail-variant {
-    font-size: 1.1rem;
-    color: #6b7280;
-    text-transform: capitalize;
-    margin-bottom: 8px;
-}
 .detail-meta {
     display: flex;
-    gap: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
     font-size: 0.9rem;
     color: #4b5563;
     margin-bottom: 8px;
+}
+.detail-meta span {
+    display: block;
 }
 .detail-sha {
     font-size: 0.8rem;
@@ -393,8 +396,6 @@ a {
         font-size: 1.5rem;
     }
     .detail-meta {
-        flex-direction: column;
-        gap: 4px;
         align-items: center;
     }
     .detail-sha {

@@ -35,7 +35,7 @@ export function SkinCard({ skin, showUpdatedAt = false, showCharacterName = true
                 />
             </div>
             {showCharacterName && <div className="skin-name">{formatCharacterName(skin.character)}</div>}
-            <div className="skin-variant">{skin.variant.replace(/_/g, ' ')}</div>
+            <div className={showCharacterName ? "skin-variant" : "skin-name"}>{skin.variant.replace(/_/g, ' ')}</div>
             {showUpdatedAt && (
                 <div className="skin-updated">Updated: {formattedDate}</div>
             )}
