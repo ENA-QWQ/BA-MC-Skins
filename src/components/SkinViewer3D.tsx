@@ -6,9 +6,18 @@ interface SkinViewer3DProps {
     width?: number;
     height?: number;
     autoRotate?: boolean;
+    enableRotate?: boolean;
+    enableZoom?: boolean;
 }
 
-export function SkinViewer3D({ skinUrl, width = 200, height = 400, autoRotate = true }: SkinViewer3DProps) {
+export function SkinViewer3D({
+                                 skinUrl,
+                                 width = 200,
+                                 height = 400,
+                                 autoRotate = true,
+                                 enableRotate = true,
+                                 enableZoom = true,
+                             }: SkinViewer3DProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const viewerRef = useRef<SkinViewer | null>(null);
     const [error, setError] = useState<Error | null>(null);
@@ -27,6 +36,11 @@ export function SkinViewer3D({ skinUrl, width = 200, height = 400, autoRotate = 
             viewer.autoRotate = autoRotate;
             viewer.autoRotateSpeed = 1.0;
 
+            if (viewer.controls) {
+                viewer.controls.enableRotate = enableRotate;
+                viewer.controls.enableZoom = enableZoom;
+            }
+
             viewerRef.current = viewer;
             setError(null);
         } catch (err) {
@@ -40,6 +54,13 @@ export function SkinViewer3D({ skinUrl, width = 200, height = 400, autoRotate = 
             }
         };
     }, [skinUrl, width, height, autoRotate]);
+
+    useEffect(() => {
+        if (viewerRef.current?.controls) {
+            viewerRef.current.controls.enableRotate = enableRotate;
+            viewerRef.current.controls.enableZoom = enableZoom;
+        }
+    }, [enableRotate, enableZoom]);
 
     if (error) {
         return <div className="error-text">Skin viewer error: {error.message}</div>;

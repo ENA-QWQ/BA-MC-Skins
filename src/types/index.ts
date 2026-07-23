@@ -4,6 +4,9 @@ export interface SkinItem {
     variant: string;
     downloadUrl: string;
     sha256: string;
+    createdAt: string;
+    updatedAt: string;
+    author: string;
 }
 
 export interface SkinDataState {
