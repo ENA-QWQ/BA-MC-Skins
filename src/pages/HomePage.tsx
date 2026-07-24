@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useSkinData } from '../hooks/useSkinData';
 import { SkinViewer3D } from '../components/SkinViewer3D';
 import { Footer } from '../components/Footer';
+import { Header } from '../components/Header';
 
 function formatCharacterName(id: string): string {
     return id
@@ -13,7 +14,8 @@ function formatCharacterName(id: string): string {
 
 export function HomePage() {
     const { data, loading, error } = useSkinData();
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchParams] = useSearchParams();
+    const searchTerm = searchParams.get('search') || '';
 
     const characters = useMemo(() => {
         const map = new Map<string, typeof data>();
@@ -21,7 +23,6 @@ export function HomePage() {
             if (!map.has(skin.character)) map.set(skin.character, []);
             map.get(skin.character)!.push(skin);
         });
-
         const result = [];
         for (const [character, skins] of map) {
             let preview = skins.find((s) => s.variant === 'Default');
@@ -55,17 +56,8 @@ export function HomePage() {
 
     return (
         <div className="layout">
+            <Header title="BA Minecraft Skins" showBack={false} />
             <section className="section">
-                <div className="section-header">
-                    <span className="section-title">BA Minecraft Skins</span>
-                    <input
-                        type="text"
-                        placeholder="Search character or variant..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="search-input"
-                    />
-                </div>
                 <div className="characters-grid">
                     {filteredCharacters.map(({ character, preview, count }) => (
                         <Link

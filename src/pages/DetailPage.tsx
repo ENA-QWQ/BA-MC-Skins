@@ -3,6 +3,7 @@ import { useSkinData } from '../hooks/useSkinData';
 import { SkinViewer3D } from '../components/SkinViewer3D';
 import { DownloadButton } from '../components/DownloadButton';
 import { Footer } from '../components/Footer';
+import { Header } from '../components/Header';
 
 function formatCharacterName(id: string): string {
     return id
@@ -54,22 +55,8 @@ export function DetailPage() {
 
     return (
         <div className="layout">
+            <Header title={formatCharacterName(skin.character)} showBack={true} />
             <div className="detail-container">
-                <span className="back-link" onClick={() => navigate(-1)}>
-                    <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <path d="M19 12H5M12 19l-7-7 7-7" />
-                    </svg>
-                    Back to Gallery
-                </span>
                 <div className="detail-card">
                     <div className="detail-left">
                         <SkinViewer3D
@@ -87,6 +74,7 @@ export function DetailPage() {
                             <span>Variant: {skin.variant.replace(/_/g, ' ')}</span>
                             <span>Updated: {formattedDate}</span>
                             <span>Author: {skin.author}</span>
+                            <span>ID: {skin.id}</span>
                         </div>
                         <div className="detail-actions">
                             <DownloadButton

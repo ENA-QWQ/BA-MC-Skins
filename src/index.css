@@ -30,7 +30,7 @@ body::before {
     z-index: 1;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 40px 30px;
+    padding: 40px 30px 20px;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -40,7 +40,7 @@ a {
     text-decoration: none;
 }
 .section {
-    margin-bottom: 56px;
+    margin-bottom: 24px;
     flex: 1;
 }
 .section-header {
@@ -377,7 +377,7 @@ a {
     justify-content: space-between;
     font-size: 0.85rem;
     color: #6b7280;
-    margin-top: 40px;
+    margin-top: 20px;
 }
 .footer a {
     color: inherit;
@@ -415,6 +415,87 @@ a {
 .not-found h2 {
     font-size: 1.5rem;
     margin-bottom: 12px;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 2px solid #888;
+    margin-bottom: 24px;
+}
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.back-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: #6b7280;
+    padding: 0;
+    transition: color 0.3s;
+}
+.back-btn:hover {
+    color: #1f2937;
+}
+.header-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #000;
+}
+.header-right {
+    display: flex;
+    align-items: center;
+}
+.search-wrapper {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+}
+.search-wrapper::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: #2d2d2d;
+    transition: height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 0;
+}
+.search-wrapper:focus-within::before {
+    height: 100%;
+}
+.search-input {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #888;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    color: #1f2937;
+    outline: none;
+    width: 200px;
+    font-family: inherit;
+    transition: color 0.3s, border-bottom-color 0.3s;
+}
+.search-wrapper:focus-within .search-input {
+    color: #fff;
+    border-bottom-color: #2d2d2d;
+}
+.search-input::placeholder {
+    color: #6b7280;
+    transition: color 0.3s;
+}
+.search-wrapper:focus-within .search-input::placeholder {
+    color: #aaa;
 }
 @media (max-width: 600px) {
     .layout {
@@ -463,5 +544,12 @@ a {
         flex-direction: column;
         align-items: center;
         gap: 4px;
+    }
+    .header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .search-input {
+        width: 140px;
     }
 }
