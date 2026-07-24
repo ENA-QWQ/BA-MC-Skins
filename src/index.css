@@ -96,6 +96,8 @@ a {
     z-index: 1;
     text-align: center;
     cursor: pointer;
+    user-drag: none;
+    -webkit-user-drag: none;
 }
 .character-card::before {
     content: '';
@@ -157,6 +159,8 @@ a {
     z-index: 1;
     text-align: center;
     cursor: pointer;
+    user-drag: none;
+    -webkit-user-drag: none;
 }
 .skin-card::before {
     content: '';

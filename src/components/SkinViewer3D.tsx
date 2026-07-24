@@ -62,6 +62,59 @@ export function SkinViewer3D({
         }
     }, [enableRotate, enableZoom]);
 
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        let startX = 0;
+        let startY = 0;
+        let isDragging = false;
+
+        const handleMouseDown = (e: MouseEvent) => {
+            startX = e.clientX;
+            startY = e.clientY;
+            isDragging = false;
+        };
+
+        const handleMouseMove = (e: MouseEvent) => {
+            if (e.buttons === 0) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            if (Math.sqrt(dx * dx + dy * dy) > 5) {
+                isDragging = true;
+            }
+        };
+
+        const handleMouseUp = () => {
+            // 可以不做特殊处理
+        };
+
+        const handleClick = (e: MouseEvent) => {
+            if (isDragging) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        };
+
+        const handleDragStart = (e: DragEvent) => {
+            e.preventDefault();
+        };
+
+        canvas.addEventListener('mousedown', handleMouseDown);
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        canvas.addEventListener('click', handleClick);
+        canvas.addEventListener('dragstart', handleDragStart);
+
+        return () => {
+            canvas.removeEventListener('mousedown', handleMouseDown);
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+            canvas.removeEventListener('click', handleClick);
+            canvas.removeEventListener('dragstart', handleDragStart);
+        };
+    }, []);
+
     if (error) {
         return <div className="error-text">Skin viewer error: {error.message}</div>;
     }
