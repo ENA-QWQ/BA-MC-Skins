@@ -9,21 +9,9 @@ body {
     min-height: 100vh;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    background: url(https://api.imlazy.ink/img) center / cover fixed;
-    background-color: #f0f0f0;
-    position: relative;
+    background: repeating-linear-gradient(45deg, #c0ebfa, #c7e8ff 20px, #ffffff 20px, #ffffff 40px);
+    background-size: 56.57px 56.57px;
     margin: 0;
-}
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.7);
-    z-index: 0;
-    pointer-events: none;
 }
 .layout {
     position: relative;
