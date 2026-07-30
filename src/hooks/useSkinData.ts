@@ -9,7 +9,9 @@ export function useSkinData(): SkinDataState {
     });
 
     useEffect(() => {
-        fetch('/BA-MC-Skins/data.json')
+        const base = import.meta.env.BASE_URL || '/';
+        const url = `${base}data.json`;
+        fetch(url)
             .then((res) => {
                 if (!res.ok) throw new Error('Failed to fetch data.json');
                 return res.json();
