@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
     plugins: [react()],
-    base: '/BA-MC-Skins/',
+    base: '/Skin-Ark/',
     build: {
         outDir: 'dist',
         emptyOutDir: true,
