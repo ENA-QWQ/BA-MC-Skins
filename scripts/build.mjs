@@ -151,6 +151,7 @@ async function build() {
 
     await fs.writeFile(
         path.join(PUBLIC_DIR, 'data.json'),
+        path.join(DIST_DIR, 'data.json'),
         JSON.stringify(manifest, null, 2)
     );
 
