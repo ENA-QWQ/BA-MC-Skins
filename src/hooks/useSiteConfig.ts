@@ -23,7 +23,9 @@ export function useSiteConfig() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
     useEffect(() => {
-        fetch('/site.config.json')
+        const base = import.meta.env.BASE_URL || '/';
+        const url = `${base}site.config.json`;
+        fetch(url)
             .then((res) => {
                 if (!res.ok) throw new Error('Failed to fetch config');
                 return res.json();
