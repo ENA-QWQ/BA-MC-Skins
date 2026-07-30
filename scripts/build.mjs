@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const SKINS_DIR = path.join(ROOT, 'skins');
 const PUBLIC_DIR = path.join(ROOT, 'public');
+const DIST_DIR = path.join(ROOT, 'dist');
 const CONFIG_PATH = path.join(ROOT, 'site.config.json');
 
 let config = {
@@ -109,6 +110,7 @@ async function processSkinFile(filePath, game, character, variant, meta) {
 
 async function build() {
     await fs.mkdir(PUBLIC_DIR, { recursive: true });
+    await fs.mkdir(DIST_DIR, { recursive: true });
 
     const gameDirs = await fs.readdir(SKINS_DIR).catch(() => []);
     const manifest = [];
@@ -149,11 +151,18 @@ async function build() {
         }
     }
 
-    await fs.writeFile(
-        path.join(PUBLIC_DIR, 'data.json'),
-        path.join(DIST_DIR, 'data.json'),
-        JSON.stringify(manifest, null, 2)
-    );
+    const jsonData = JSON.stringify(manifest, null, 2);
+
+    await fs.writeFile(path.join(PUBLIC_DIR, 'data.json'), jsonData);
+    await fs.writeFile(path.join(DIST_DIR, 'data.json'), jsonData);
+
+    try {
+        const configContent = await fs.readFile(CONFIG_PATH, 'utf-8');
+        await fs.writeFile(path.join(PUBLIC_DIR, 'site.config.json'), configContent);
+        await fs.writeFile(path.join(DIST_DIR, 'site.config.json'), configContent);
+    } catch (err) {
+        console.warn('Warning: site.config.json not found, skipping copy.');
+    }
 
     console.log(`Build complete. Processed ${manifest.length} skins.`);
 }
