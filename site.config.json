@@ -1,0 +1,19 @@
+{
+  "siteTitle": "SkinArk",
+  "siteDescription": "A community-driven Minecraft skin gallery",
+  "repoOwner": "ENA-QWQ",
+  "repoName": "Skin-Ark",
+  "branch": "main",
+  "theme": {
+    "primaryColor": "#2d2d2d",
+    "secondaryColor": "#4a90d9",
+    "bgPattern": "repeating-linear-gradient(45deg, #c0ebfa, #c7e8ff 20px, #ffffff 20px, #ffffff 40px)"
+  },
+  "displayNameMap": {
+    "blue-archive": "Blue Archive"
+  },
+  "enableSearch": true,
+  "defaultVariant": "Default",
+  "allowExternalImports": true,
+  "requireSourceForImports": true
+}
