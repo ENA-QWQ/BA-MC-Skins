@@ -1,5 +1,6 @@
 export interface SkinItem {
     id: string;
+    game: string;
     character: string;
     variant: string;
     downloadUrl: string;
@@ -7,6 +8,11 @@ export interface SkinItem {
     createdAt: string;
     updatedAt: string;
     author: string;
+    isOriginal: boolean;
+    originalAuthor: string | null;
+    originalSource: string | null;
+    license: string | null;
+    note: string | null;
 }
 
 export interface SkinDataState {
