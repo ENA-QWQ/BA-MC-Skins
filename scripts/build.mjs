@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const SKINS_DIR = path.join(ROOT, 'skins');
-const DIST_DIR = path.join(ROOT, 'dist');
+const PUBLIC_DIR = path.join(ROOT, 'public');
 const CONFIG_PATH = path.join(ROOT, 'site.config.json');
 
 let config = {
@@ -108,7 +108,7 @@ async function processSkinFile(filePath, game, character, variant, meta) {
 }
 
 async function build() {
-    await fs.mkdir(DIST_DIR, { recursive: true });
+    await fs.mkdir(PUBLIC_DIR, { recursive: true });
 
     const gameDirs = await fs.readdir(SKINS_DIR).catch(() => []);
     const manifest = [];
@@ -150,7 +150,7 @@ async function build() {
     }
 
     await fs.writeFile(
-        path.join(DIST_DIR, 'data.json'),
+        path.join(PUBLIC_DIR, 'data.json'),
         JSON.stringify(manifest, null, 2)
     );
 

@@ -6,7 +6,7 @@
   "scripts": {
     "build:frontend": "tsc && vite build",
     "build:assets": "node scripts/build.mjs",
-    "dev": "vite",
+    "dev": "npm run build:assets && vite",
     "build": "npm run build:frontend && npm run build:assets",
     "preview": "vite preview"
   },
