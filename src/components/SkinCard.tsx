@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { SkinItem } from '../types';
 import { SkinViewer3D } from './SkinViewer3D';
+import { useSiteConfig } from '../hooks/useSiteConfig';
 
 interface SkinCardProps {
     skin: SkinItem;
@@ -8,19 +9,24 @@ interface SkinCardProps {
     showCharacterName?: boolean;
 }
 
+function formatName(id: string): string {
+    return id
+        .split('-')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
 export function SkinCard({ skin, showUpdatedAt = false, showCharacterName = true }: SkinCardProps) {
+    const { config } = useSiteConfig();
+    const displayNameMap = config?.displayNameMap || {};
+
     const formattedDate = new Date(skin.updatedAt).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
     });
 
-    function formatCharacterName(id: string): string {
-        return id
-            .split('-')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-    }
+    const characterDisplayName = displayNameMap[skin.character] || formatName(skin.character);
 
     return (
         <Link to={`/skin/${skin.id}`} className="skin-card">
@@ -34,7 +40,7 @@ export function SkinCard({ skin, showUpdatedAt = false, showCharacterName = true
                     enableZoom={false}
                 />
             </div>
-            {showCharacterName && <div className="skin-name">{formatCharacterName(skin.character)}</div>}
+            {showCharacterName && <div className="skin-name">{characterDisplayName}</div>}
             <div className={showCharacterName ? "skin-variant" : "skin-name"}>{skin.variant.replace(/_/g, ' ')}</div>
             {showUpdatedAt && (
                 <div className="skin-updated">Updated: {formattedDate}</div>

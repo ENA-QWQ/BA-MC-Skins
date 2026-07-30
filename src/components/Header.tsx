@@ -1,8 +1,9 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useSiteConfig } from '../hooks/useSiteConfig';
 
 interface HeaderProps {
-    title: string;
+    title?: string;
     showBack?: boolean;
 }
 
@@ -11,6 +12,10 @@ export function Header({ title, showBack = true }: HeaderProps) {
     const [searchParams] = useSearchParams();
     const searchValue = searchParams.get('search') || '';
     const [inputValue, setInputValue] = useState(searchValue);
+    const { config } = useSiteConfig();
+
+    const headerTitle = title || config?.siteTitle || 'Skin Gallery';
+    const enableSearch = config?.enableSearch !== undefined ? config.enableSearch : true;
 
     useEffect(() => {
         setInputValue(searchParams.get('search') || '');
@@ -40,19 +45,21 @@ export function Header({ title, showBack = true }: HeaderProps) {
                         </svg>
                     </button>
                 )}
-                <span className="header-title">{title}</span>
+                <span className="header-title">{headerTitle}</span>
             </div>
-            <div className="header-right">
-                <div className="search-wrapper">
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        value={inputValue}
-                        onChange={handleSearchChange}
-                        className="search-input"
-                    />
+            {enableSearch && (
+                <div className="header-right">
+                    <div className="search-wrapper">
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={inputValue}
+                            onChange={handleSearchChange}
+                            className="search-input"
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }
