@@ -1,8 +1,10 @@
 # Skin Ark – Universal Minecraft Skin Collaboration Platform
 
-**English** | **中文**
+[English](#english) | [中文](#chinese)
 
 ---
+
+<a id="english"></a>
 
 ## English
 
@@ -31,7 +33,7 @@ Skin-Ark/
 ├── src/                            # Frontend source code
 ├── scripts/                        # Build and tool scripts
 ├── .github/workflows/              # GitHub Actions pipelines
-├── site.config.json                # Main configuration (committed)
+├── site.config.json                # Main configuration
 ├── index.html
 ├── package.json
 └── vite.config.ts
@@ -150,6 +152,8 @@ Then the frontend will correctly load assets and configuration.
 
 ---
 
+<a id="chinese"></a>
+
 ## 中文
 
 ### 项目简介
@@ -177,7 +181,7 @@ Skin-Ark/
 ├── src/                            # 前端源代码
 ├── scripts/                        # 构建与工具脚本
 ├── .github/workflows/              # GitHub Actions 流水线
-├── site.config.json                # 主配置文件（需提交）
+├── site.config.json                # 主配置文件
 ├── index.html
 ├── package.json
 └── vite.config.ts
@@ -287,8 +291,8 @@ npm run build
 
 ```js
 export default defineConfig({
-  base: '/Skin-Ark/',
-  // ...
+   base: '/Skin-Ark/',
+   // ...
 });
 ```
 
