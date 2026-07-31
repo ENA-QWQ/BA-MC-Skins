@@ -5,9 +5,11 @@
   "repoName": "Skin-Ark",
   "branch": "main",
   "theme": {
-    "primaryColor": "#2d2d2d",
+    "primaryColor": "#4a90d9",
     "secondaryColor": "#4a90d9",
-    "bgPattern": "repeating-linear-gradient(45deg, #c0ebfa, #c7e8ff 20px, #ffffff 20px, #ffffff 40px)"
+    "bgPattern": "repeating-linear-gradient(45deg, #c0ebfa, #c7e8ff 20px, #ffffff 20px, #ffffff 40px)",
+    "textColor": "#1f2937",
+    "textLight": "#6b7280"
   },
   "displayNameMap": {
     "blue-archive": "Blue Archive"

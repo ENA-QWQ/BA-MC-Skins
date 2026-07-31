@@ -7,6 +7,8 @@ export interface SiteConfig {
     theme: {
         primaryColor: string;
         secondaryColor: string;
+        textColor?: string;
+        textLight?: string;
         bgPattern: string;
     };
     displayNameMap: Record<string, string>;

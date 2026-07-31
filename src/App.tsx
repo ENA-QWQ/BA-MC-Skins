@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
 import { HomePage } from './pages/HomePage';
 import { GamePage } from './pages/GamePage';
 import { CharacterPage } from './pages/CharacterPage';
@@ -7,15 +7,19 @@ import { DetailPage } from './pages/DetailPage';
 import { useSiteConfig } from './hooks/useSiteConfig';
 
 function App() {
-    const { config, loading } = useSiteConfig();
+    const { config } = useSiteConfig();
 
     useEffect(() => {
-        if (!loading && config?.siteTitle) {
-            document.title = config.siteTitle;
-        } else if (!loading) {
-            document.title = 'Skin Gallery';
-        }
-    }, [config, loading]);
+        document.title = config?.siteTitle || 'Skin Gallery';
+
+        const root = document.documentElement;
+        const theme = config?.theme || {};
+        root.style.setProperty('--primary-color', theme.primaryColor || '#2d2d2d');
+        root.style.setProperty('--secondary-color', theme.secondaryColor || '#888888');
+        root.style.setProperty('--text-color', theme.textColor || '#1f2937');
+        root.style.setProperty('--text-light', theme.textLight || '#6b7280');
+        root.style.setProperty('--bg-pattern', theme.bgPattern || 'repeating-linear-gradient(45deg, #c0ebfa, #c7e8ff 20px, #ffffff 20px, #ffffff 40px)');
+    }, [config]);
 
     return (
         <Routes>
