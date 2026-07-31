@@ -1,8 +1,10 @@
 # Skin Ark – Universal Minecraft Skin Collaboration Platform
 
-**English** | **中文**
+[English](#english) | [中文](#chinese)
 
 ---
+
+<a id="english"></a>
 
 ## English
 
@@ -150,6 +152,8 @@ Then the frontend will correctly load assets and configuration.
 
 ---
 
+<a id="chinese"></a>
+
 ## 中文
 
 ### 项目简介
@@ -287,8 +291,8 @@ npm run build
 
 ```js
 export default defineConfig({
-  base: '/Skin-Ark/',
-  // ...
+   base: '/Skin-Ark/',
+   // ...
 });
 ```
 
