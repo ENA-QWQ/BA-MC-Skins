@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
+import { AuthProvider } from './context/AuthContext';
 import { HomePage } from './pages/HomePage';
 import { GamePage } from './pages/GamePage';
 import { CharacterPage } from './pages/CharacterPage';
@@ -11,7 +12,6 @@ function App() {
 
     useEffect(() => {
         document.title = config?.siteTitle || 'Skin Gallery';
-
         const root = document.documentElement;
         const theme = config?.theme || {};
         root.style.setProperty('--primary-color', theme.primaryColor || '#2d2d2d');
@@ -22,12 +22,14 @@ function App() {
     }, [config]);
 
     return (
-        <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/game/:gameName" element={<GamePage />} />
-            <Route path="/game/:gameName/character/:characterName" element={<CharacterPage />} />
-            <Route path="/skin/:id" element={<DetailPage />} />
-        </Routes>
+        <AuthProvider>
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/game/:gameName" element={<GamePage />} />
+                <Route path="/game/:gameName/character/:characterName" element={<CharacterPage />} />
+                <Route path="/skin/:id" element={<DetailPage />} />
+            </Routes>
+        </AuthProvider>
     );
 }
 
