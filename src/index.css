@@ -455,9 +455,11 @@ a {
 }
 .search-wrapper {
     position: relative;
-    display: inline-block;
-    overflow: hidden;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid var(--secondary-color);
 }
+
 .search-wrapper::before {
     content: '';
     position: absolute;
@@ -469,23 +471,30 @@ a {
     transition: height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     z-index: 0;
 }
+
 .search-wrapper:focus-within::before {
     height: 100%;
 }
 .search-input {
     position: relative;
-    z-index: 1;
+    z-index: 1;               /* 确保在背景之上 */
     background: transparent;
     border: none;
-    border-bottom: 2px solid var(--secondary-color);
     padding: 4px 8px;
     font-size: 0.9rem;
     color: var(--text-color);
     outline: none;
     width: 200px;
     font-family: inherit;
-    transition: color 0.3s, border-bottom-color 0.3s;
+    flex: 1;
 }
+.search-wrapper svg {
+    position: relative;
+    z-index: 1;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
 .search-wrapper:focus-within .search-input {
     color: #fff;
     border-bottom-color: var(--primary-color);
@@ -653,7 +662,9 @@ a {
 }
 
 .dropdown-item {
-    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 8px 16px;
     font-size: 0.9rem;
     color: var(--text-color);
@@ -743,4 +754,68 @@ a {
 .device-modal .waiting-text {
     font-size: 0.8rem;
     color: var(--text-light);
+}
+
+/* 面包屑样式 */
+.header-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.breadcrumb-wrapper {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px;
+    font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+.breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+}
+
+.breadcrumb-link {
+    color: var(--text-light);
+    font-weight: 400;
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 0;
+}
+.breadcrumb-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background: #000;
+    transition: width 0.3s ease;
+}
+.breadcrumb-link:hover {
+    color: var(--text-color);
+}
+.breadcrumb-link:hover::after {
+    width: 100%;
+}
+
+/* 首页链接无 hover 效果 */
+.breadcrumb-home {
+    color: #000;
+    font-weight: 700;
+    cursor: pointer;
+}
+.breadcrumb-home::after {
+    display: none;
+}
+
+.breadcrumb-current {
+    font-weight: 700;
+    color: #000;
+}
+
+.breadcrumb-separator {
+    color: var(--text-light);
+    margin: 0 2px;
 }
