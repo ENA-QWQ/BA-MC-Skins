@@ -8,7 +8,8 @@
     "build:assets": "node scripts/build.mjs",
     "dev": "npm run build:assets && vite",
     "build": "npm run build:frontend && npm run build:assets",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "create-issues": "node scripts/create-issues.mjs"
   },
   "dependencies": {
     "@octokit/auth-oauth-device": "^8.0.3",
