@@ -800,7 +800,6 @@ a {
     width: 100%;
 }
 
-/* 首页链接无 hover 效果 */
 .breadcrumb-home {
     color: #000;
     font-weight: 700;
@@ -818,4 +817,210 @@ a {
 .breadcrumb-separator {
     color: var(--text-light);
     margin: 0 2px;
+}
+.comment-section-wrapper {
+    margin-top: 40px;
+    border-top: 2px solid var(--secondary-color);
+    padding-top: 20px;
+}
+
+.comment-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #000;
+    margin-bottom: 16px;
+}
+
+.comment-list {
+    margin-top: 16px;
+}
+
+.comment-item {
+    margin-bottom: 20px;
+    padding-left: 0;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.comment-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+}
+
+.comment-author {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.comment-date {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.comment-body {
+    margin: 4px 0 4px 36px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text-color);
+}
+
+.comment-replies {
+    margin-left: 20px;
+    padding-left: 16px;
+    border-left: 2px solid var(--secondary-color);
+}
+
+.comment-reply-btn {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    padding: 2px 8px;
+    margin-left: 36px;
+    border: none;
+    border-bottom: 2px solid var(--secondary-color);
+    background: transparent;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: color 0.3s ease, border-bottom-color 0.3s ease;
+    z-index: 1;
+    font-family: inherit;
+}
+
+.comment-reply-btn::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: var(--primary-color);
+    transition: height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: -1;
+}
+
+.comment-reply-btn:hover {
+    color: #fff !important;
+    border-bottom-color: var(--primary-color);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.comment-reply-btn:hover::before {
+    height: 100%;
+}
+
+.comment-form {
+    margin: 12px 0 16px 36px;
+}
+
+.comment-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    border-bottom: 2px solid var(--secondary-color);
+    transition: border-bottom-color 0.3s;
+}
+
+.comment-input-wrapper::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: var(--primary-color);
+    transition: height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 0;
+}
+
+.comment-input-wrapper:focus-within::before {
+    height: 100%;
+}
+
+.comment-input-wrapper:focus-within {
+    border-bottom-color: var(--primary-color);
+}
+
+.comment-textarea {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    min-height: 30px;
+    transition: color 0.3s;
+}
+
+.comment-input-wrapper:focus-within .comment-textarea {
+    color: #fff;
+}
+
+.comment-textarea::placeholder {
+    color: var(--text-light);
+    transition: color 0.3s;
+}
+
+.comment-input-wrapper:focus-within .comment-textarea::placeholder {
+    color: #aaa;
+}
+
+.comment-submit-btn {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    padding: 4px 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: color 0.3s;
+    font-family: inherit;
+    align-self: center;
+}
+
+.comment-input-wrapper:focus-within .comment-submit-btn {
+    color: #fff;
+}
+
+.comment-submit-btn:hover:not(:disabled) {
+    color: var(--primary-color);
+}
+
+.comment-input-wrapper:focus-within .comment-submit-btn:hover:not(:disabled) {
+    color: #fff;
+}
+
+.comment-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.login-prompt {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    margin-top: 16px;
+}
+
+.no-comments {
+    color: var(--text-light);
+    font-style: italic;
 }

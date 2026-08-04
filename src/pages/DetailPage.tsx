@@ -1,10 +1,14 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useSkinData } from '../hooks/useSkinData';
 import { useSiteConfig } from '../hooks/useSiteConfig';
+import { useAuth } from '../context/AuthContext';
 import { SkinViewer3D } from '../components/SkinViewer3D';
 import { DownloadButton } from '../components/DownloadButton';
 import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
+import { CommentSection } from '../components/CommentSection';
+import { getOctokit, getIssueForSkin } from '../services/github';
 
 function formatName(id: string): string {
     return id
@@ -17,7 +21,43 @@ export function DetailPage() {
     const { id } = useParams<{ id: string }>();
     const { data, loading, error } = useSkinData();
     const { config } = useSiteConfig();
+    const { token } = useAuth();
     const navigate = useNavigate();
+    const [issueNumber, setIssueNumber] = useState<number | null>(null);
+    const [issueLoading, setIssueLoading] = useState(true);
+    const [issueError, setIssueError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!id) return;
+        if (!data.length) return;
+        if (!config || config.repoOwner === 'unknown') return;
+
+        const owner = config.repoOwner;
+        const repo = config.repoName;
+
+        const loadIssue = async () => {
+            setIssueLoading(true);
+            setIssueError(null);
+            try {
+                const octokit = getOctokit(token || '');
+                const num = await getIssueForSkin(octokit, owner, repo, id);
+                if (num === null) {
+                    setIssueError('No discussion thread found for this skin. It will be created automatically by the system.');
+                    setIssueNumber(null);
+                } else {
+                    setIssueNumber(num);
+                }
+            } catch (err: any) {
+                console.warn('Failed to load issue for skin:', err);
+                setIssueError('Failed to load discussion. Please try again later.');
+                setIssueNumber(null);
+            } finally {
+                setIssueLoading(false);
+            }
+        };
+
+        loadIssue();
+    }, [id, data, config, token]);
 
     if (loading) return <div className="loading-text">Loading...</div>;
     if (error) return <div className="error-text">Error: {error}</div>;
@@ -28,11 +68,11 @@ export function DetailPage() {
             <div className="not-found">
                 <h2>Skin not found</h2>
                 <span className="back-link" onClick={() => navigate(-1)}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          Back to Gallery
-        </span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    Back to Gallery
+                </span>
             </div>
         );
     }
@@ -91,6 +131,21 @@ export function DetailPage() {
                         </div>
                         <div className="detail-sha">SHA-256: {skin.sha256}</div>
                     </div>
+                </div>
+                <div className="comment-section-wrapper">
+                    {issueLoading ? (
+                        <div className="loading-text">Loading discussion...</div>
+                    ) : issueNumber ? (
+                        <CommentSection
+                            issueNumber={issueNumber}
+                            skinId={skin.id}
+                            token={token}
+                            repoOwner={repoOwner}
+                            repoName={repoName}
+                        />
+                    ) : (
+                        <p className="error-text">{issueError || 'Discussion not available.'}</p>
+                    )}
                 </div>
             </div>
             <Footer />
