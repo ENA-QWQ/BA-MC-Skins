@@ -12,7 +12,7 @@ interface HeaderProps {
 
 const PROXY_URL = 'https://mscdownload.pages.dev/proxy?url=';
 
-export function Header({ title, showBack = true }: HeaderProps) {
+export function Header({showBack = true }: HeaderProps) {
     const navigate = useNavigate();
     const location = useLocation();
     const [searchParams] = useSearchParams();
