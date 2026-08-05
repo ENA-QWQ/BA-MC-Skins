@@ -89,7 +89,7 @@ export function CommentSection({
             repo: repoName,
             issue_number: issueNumber,
             mediaType: {
-                format: 'html',
+                format: 'full',
             },
         });
         return data;
