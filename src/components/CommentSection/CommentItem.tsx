@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Octokit } from '@octokit/rest';
 import { CommentForm } from './CommentForm';
 import { useAuth } from '../../context/AuthContext';
@@ -39,9 +39,7 @@ export function CommentItem({
                                 onDeleteSuccess,
                             }: CommentItemProps) {
     const [showReplyForm, setShowReplyForm] = useState(false);
-    const [showDropdown, setShowDropdown] = useState(false);
     const [deleting, setDeleting] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
     const { user, updateTokens, logout } = useAuth();
 
     const isAuthor = user?.login === comment.user.login;
@@ -54,16 +52,6 @@ export function CommentItem({
         hour: '2-digit',
         minute: '2-digit',
     });
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setShowDropdown(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
 
     const performDelete = async (currentToken: string) => {
         const octokit = new Octokit({ auth: currentToken });
@@ -109,54 +97,43 @@ export function CommentItem({
         }
     };
 
-    const handleToggleDropdown = () => {
-        setShowDropdown(!showDropdown);
-    };
-
     const filteredReplies = comment.replies ? comment.replies.filter(reply => {
         const parentId = hasReplyTo(reply.body);
         return parentId === comment.id;
     }) : [];
 
+    const hasReplies = filteredReplies.length > 0;
+
     return (
-        <div className="comment-item">
+        <div className={`comment-item ${hasReplies ? 'has-replies' : ''}`}>
             <div className="comment-header">
                 <img src={comment.user.avatar_url} alt={comment.user.login} className="comment-avatar" />
                 <span className="comment-author">{comment.user.login}</span>
                 <span className="comment-date">{formattedDate}</span>
-                <div className="comment-actions-wrapper" ref={dropdownRef}>
-                    <button
-                        className="comment-actions-btn"
-                        onClick={handleToggleDropdown}
-                        aria-label="Comment actions"
-                    >
+                <div className="comment-actions-wrapper">
+                    <button className="comment-actions-btn" aria-label="Comment actions">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <circle cx="12" cy="5" r="2" />
                             <circle cx="12" cy="12" r="2" />
                             <circle cx="12" cy="19" r="2" />
                         </svg>
                     </button>
-                    {showDropdown && (
-                        <div className="comment-dropdown-menu">
-                            <div
-                                className="comment-dropdown-item"
-                                onClick={() => {
-                                    setShowDropdown(false);
-                                    setShowReplyForm(true);
-                                }}
-                            >
-                                Reply
-                            </div>
-                            {isAuthor && (
-                                <div
-                                    className="comment-dropdown-item comment-dropdown-item-danger"
-                                    onClick={handleDelete}
-                                >
-                                    {deleting ? 'Deleting...' : 'Delete'}
-                                </div>
-                            )}
+                    <div className="comment-dropdown-menu">
+                        <div
+                            className="comment-dropdown-item"
+                            onClick={() => setShowReplyForm(true)}
+                        >
+                            Reply
                         </div>
-                    )}
+                        {isAuthor && (
+                            <div
+                                className="comment-dropdown-item comment-dropdown-item-danger"
+                                onClick={handleDelete}
+                            >
+                                {deleting ? 'Deleting...' : 'Delete'}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
             <div className="comment-body">{cleanBody}</div>
@@ -173,7 +150,7 @@ export function CommentItem({
                     }}
                 />
             )}
-            {filteredReplies.length > 0 && (
+            {hasReplies && (
                 <div className="comment-replies">
                     {filteredReplies.map((reply) => (
                         <CommentItem

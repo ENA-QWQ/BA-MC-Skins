@@ -162,21 +162,21 @@ export function DetailPage() {
                         <div className="detail-sha">SHA-256: {skin.sha256}</div>
                     </div>
                 </div>
-                <div className="comment-section-wrapper">
-                    {issueLoading ? (
-                        <div className="loading-text">Loading discussion...</div>
-                    ) : issueNumber ? (
-                        <CommentSection
-                            issueNumber={issueNumber}
-                            skinId={skin.id}
-                            token={token}
-                            repoOwner={repoOwner}
-                            repoName={repoName}
-                        />
-                    ) : (
-                        <p className="error-text">{issueError || 'Discussion not available.'}</p>
-                    )}
-                </div>
+            </div>
+            <div className="comment-section-wrapper">
+                {issueLoading ? (
+                    <div className="loading-text">Loading discussion...</div>
+                ) : issueNumber ? (
+                    <CommentSection
+                        issueNumber={issueNumber}
+                        skinId={skin.id}
+                        token={token}
+                        repoOwner={repoOwner}
+                        repoName={repoName}
+                    />
+                ) : (
+                    <p className="error-text">{issueError || 'Discussion not available.'}</p>
+                )}
             </div>
             <Footer />
         </div>
