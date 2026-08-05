@@ -21,6 +21,11 @@ interface CommentSectionProps {
     repoName: string;
 }
 
+function hasReplyTo(body: string): number | null {
+    const match = body.match(/<!-- reply_to: (\d+) -->/);
+    return match ? parseInt(match[1], 10) : null;
+}
+
 function buildCommentTree(comments: any[]): Comment[] {
     const sorted = [...comments].sort(
         (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
@@ -42,11 +47,12 @@ function buildCommentTree(comments: any[]): Comment[] {
         map.set(c.id, node);
     }
 
+    const existingIds = new Set(map.keys());
+
     for (const c of sorted) {
         const node = map.get(c.id)!;
-        const replyMatch = c.body.match(/<!-- reply_to: (\d+) -->/);
-        if (replyMatch) {
-            const parentId = parseInt(replyMatch[1], 10);
+        const parentId = hasReplyTo(c.body);
+        if (parentId !== null && existingIds.has(parentId)) {
             const parent = map.get(parentId);
             if (parent) {
                 parent.replies!.push(node);
@@ -127,6 +133,10 @@ export function CommentSection({
         setRefreshTrigger((prev) => prev + 1);
     };
 
+    const handleDeleteSuccess = () => {
+        setRefreshTrigger((prev) => prev + 1);
+    };
+
     if (!token || token === '') {
         return <p className="login-prompt">Please login to see and post comments.</p>;
     }
@@ -157,6 +167,7 @@ export function CommentSection({
                             repoOwner={repoOwner}
                             repoName={repoName}
                             onReplySuccess={handleCommentPosted}
+                            onDeleteSuccess={handleDeleteSuccess}
                         />
                     ))
                 )}
