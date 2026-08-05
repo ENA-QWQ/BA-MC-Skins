@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Octokit } from '@octokit/rest';
 import { CommentItem } from './CommentItem';
 import { CommentForm } from './CommentForm';
+import { useAuth } from '../../context/AuthContext';
+import { refreshUserToken } from '../../services/github';
 
 interface Comment {
     id: number;
@@ -69,31 +71,56 @@ export function CommentSection({
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const { updateTokens, logout } = useAuth();
 
-    const fetchComments = async () => {
+    const fetchComments = async (currentToken: string) => {
+        const octokit = new Octokit({ auth: currentToken });
+        const { data } = await octokit.issues.listComments({
+            owner: repoOwner,
+            repo: repoName,
+            issue_number: issueNumber,
+        });
+        return data;
+    };
+
+    const loadComments = async () => {
         if (!token || token === '') return;
         setLoading(true);
         setError(null);
+        let currentToken = token;
+
         try {
-            const octokit = new Octokit({ auth: token });
-            const { data } = await octokit.issues.listComments({
-                owner: repoOwner,
-                repo: repoName,
-                issue_number: issueNumber,
-            });
+            const data = await fetchComments(currentToken);
             const tree = buildCommentTree(data);
             setComments(tree);
         } catch (err: any) {
-            setError(err.message || 'Failed to load comments');
+            if (err.status === 403 && err.message?.includes('Resource not accessible by integration')) {
+                try {
+                    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
+                    const refreshToken = localStorage.getItem('github_refresh_token');
+                    if (!refreshToken) {
+                        logout();
+                        return;
+                    }
+                    const newTokens = await refreshUserToken(clientId, refreshToken);
+                    updateTokens(newTokens.access_token, newTokens.refresh_token);
+                    currentToken = newTokens.access_token;
+                    const data = await fetchComments(currentToken);
+                    const tree = buildCommentTree(data);
+                    setComments(tree);
+                } catch (refreshErr) {
+                    logout();
+                }
+            } else {
+                setError(err.message || 'Failed to load comments');
+            }
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        if (token && issueNumber) {
-            fetchComments();
-        }
+        loadComments();
     }, [token, issueNumber, refreshTrigger]);
 
     const handleCommentPosted = () => {

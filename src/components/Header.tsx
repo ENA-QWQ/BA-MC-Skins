@@ -166,7 +166,7 @@ export function Header({showBack = true }: HeaderProps) {
                         done = true;
                         setDeviceFlowActive(false);
                         const userInfo = await fetchUser(tokenData.access_token);
-                        login(tokenData.access_token, userInfo);
+                        login(tokenData.access_token, tokenData.refresh_token, userInfo);
                     } else if (tokenData.error === 'authorization_pending') {
                         const timeoutId = setTimeout(poll, intervalMs);
                         setPollingTimeout(timeoutId);
@@ -222,23 +222,23 @@ export function Header({showBack = true }: HeaderProps) {
                             if (isFirst) {
                                 return (
                                     <span key={index} className="breadcrumb-item">
-                    <Link to="/" className="breadcrumb-home">{crumb.name}</Link>
+                                        <Link to="/" className="breadcrumb-home">{crumb.name}</Link>
                                         {!isLast && <span className="breadcrumb-separator"> / </span>}
-                  </span>
+                                    </span>
                                 );
                             }
                             if (isLast) {
                                 return (
                                     <span key={index} className="breadcrumb-item">
-                    <span className="breadcrumb-current">{crumb.name}</span>
-                  </span>
+                                        <span className="breadcrumb-current">{crumb.name}</span>
+                                    </span>
                                 );
                             }
                             return (
                                 <span key={index} className="breadcrumb-item">
-                  <Link to={crumb.path} className="breadcrumb-link">{crumb.name}</Link>
-                  <span className="breadcrumb-separator"> / </span>
-                </span>
+                                    <Link to={crumb.path} className="breadcrumb-link">{crumb.name}</Link>
+                                    <span className="breadcrumb-separator"> / </span>
+                                </span>
                             );
                         })}
                     </div>

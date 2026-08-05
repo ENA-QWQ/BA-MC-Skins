@@ -8,7 +8,7 @@ import { DownloadButton } from '../components/DownloadButton';
 import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
 import { CommentSection } from '../components/CommentSection';
-import { getOctokit, getIssueForSkin } from '../services/github';
+import { getOctokit, getIssueForSkin, refreshUserToken } from '../services/github';
 
 function formatName(id: string): string {
     return id
@@ -21,7 +21,7 @@ export function DetailPage() {
     const { id } = useParams<{ id: string }>();
     const { data, loading, error } = useSkinData();
     const { config } = useSiteConfig();
-    const { token } = useAuth();
+    const { token, updateTokens, logout } = useAuth();
     const navigate = useNavigate();
     const [issueNumber, setIssueNumber] = useState<number | null>(null);
     const [issueLoading, setIssueLoading] = useState(true);
@@ -38,8 +38,10 @@ export function DetailPage() {
         const loadIssue = async () => {
             setIssueLoading(true);
             setIssueError(null);
+            let currentToken = token || '';
+
             try {
-                const octokit = getOctokit(token || '');
+                const octokit = getOctokit(currentToken);
                 const num = await getIssueForSkin(octokit, owner, repo, id);
                 if (num === null) {
                     setIssueError('No discussion thread found for this skin. It will be created automatically by the system.');
@@ -48,9 +50,37 @@ export function DetailPage() {
                     setIssueNumber(num);
                 }
             } catch (err: any) {
-                console.warn('Failed to load issue for skin:', err);
-                setIssueError('Failed to load discussion. Please try again later.');
-                setIssueNumber(null);
+                if (err.status === 403 && err.message?.includes('Resource not accessible by integration')) {
+                    try {
+                        const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
+                        const refreshToken = localStorage.getItem('github_refresh_token');
+                        if (!refreshToken) {
+                            logout();
+                            setIssueError('Session expired. Please login again.');
+                            setIssueNumber(null);
+                            return;
+                        }
+                        const newTokens = await refreshUserToken(clientId, refreshToken);
+                        updateTokens(newTokens.access_token, newTokens.refresh_token);
+                        currentToken = newTokens.access_token;
+                        const octokit = getOctokit(currentToken);
+                        const num = await getIssueForSkin(octokit, owner, repo, id);
+                        if (num === null) {
+                            setIssueError('No discussion thread found for this skin. It will be created automatically by the system.');
+                            setIssueNumber(null);
+                        } else {
+                            setIssueNumber(num);
+                        }
+                    } catch (refreshErr) {
+                        logout();
+                        setIssueError('Session expired. Please login again.');
+                        setIssueNumber(null);
+                    }
+                } else {
+                    console.warn('Failed to load issue for skin:', err);
+                    setIssueError('Failed to load discussion. Please try again later.');
+                    setIssueNumber(null);
+                }
             } finally {
                 setIssueLoading(false);
             }

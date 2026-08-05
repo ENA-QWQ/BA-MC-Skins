@@ -14,6 +14,29 @@ export const fetchUser = async (token: string) => {
     };
 };
 
+export const refreshUserToken = async (
+    clientId: string,
+    refreshToken: string
+): Promise<{ access_token: string; refresh_token: string; expires_in: number }> => {
+    const params = new URLSearchParams({
+        client_id: clientId,
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+    });
+
+    const response = await fetch('https://github.com/login/oauth/access_token', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: params,
+    });
+
+    const data = await response.json();
+    if (data.error) {
+        throw new Error(data.error_description || data.error);
+    }
+    return data;
+};
+
 export const getIssueForSkin = async (
     octokit: Octokit,
     owner: string,
@@ -29,27 +52,4 @@ export const getIssueForSkin = async (
     });
     if (data.length === 0) return null;
     return data[0].number;
-};
-
-export const ensureIssueForSkin = async (
-    octokit: Octokit,
-    owner: string,
-    repo: string,
-    skinId: string,
-    title?: string,
-    body?: string
-): Promise<number> => {
-    const existing = await getIssueForSkin(octokit, owner, repo, skinId);
-    if (existing !== null) return existing;
-
-    const issueTitle = title || `[Skin] ${skinId}`;
-    const issueBody = body || `Skin ID: ${skinId}`;
-    const { data } = await octokit.issues.create({
-        owner,
-        repo,
-        title: issueTitle,
-        body: issueBody,
-        labels: [`skin:${skinId}`],
-    });
-    return data.number;
 };
