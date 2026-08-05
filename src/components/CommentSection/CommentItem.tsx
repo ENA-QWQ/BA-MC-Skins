@@ -9,6 +9,7 @@ interface CommentItemProps {
         id: number;
         user: { login: string; avatar_url: string };
         body: string;
+        body_html: string;
         created_at: string;
         replies?: CommentItemProps['comment'][];
     };
@@ -20,11 +21,9 @@ interface CommentItemProps {
     onDeleteSuccess: () => void;
 }
 
-function cleanCommentBody(body: string): string {
-    return body.replace(/\n*<!-- reply_to: \d+ -->\s*$/, '');
-}
 
-function hasReplyTo(body: string): number | null {
+function hasReplyTo(body: string | undefined | null): number | null {
+    if (!body) return null;
     const match = body.match(/<!-- reply_to: (\d+) -->/);
     return match ? parseInt(match[1], 10) : null;
 }
@@ -43,7 +42,6 @@ export function CommentItem({
     const { user, updateTokens, logout } = useAuth();
 
     const isAuthor = user?.login === comment.user.login;
-    const cleanBody = cleanCommentBody(comment.body);
 
     const formattedDate = new Date(comment.created_at).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -136,7 +134,10 @@ export function CommentItem({
                     </div>
                 </div>
             </div>
-            <div className="comment-body">{cleanBody}</div>
+            <div
+                className="comment-body"
+                dangerouslySetInnerHTML={{ __html: comment.body_html || '' }}
+            />
             {showReplyForm && (
                 <CommentForm
                     issueNumber={issueNumber}

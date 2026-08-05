@@ -9,6 +9,7 @@ interface Comment {
     id: number;
     user: { login: string; avatar_url: string };
     body: string;
+    body_html: string;
     created_at: string;
     replies?: Comment[];
 }
@@ -21,7 +22,8 @@ interface CommentSectionProps {
     repoName: string;
 }
 
-function hasReplyTo(body: string): number | null {
+function hasReplyTo(body: string | undefined | null): number | null {
+    if (!body) return null;
     const match = body.match(/<!-- reply_to: (\d+) -->/);
     return match ? parseInt(match[1], 10) : null;
 }
@@ -40,7 +42,8 @@ function buildCommentTree(comments: any[]): Comment[] {
                 login: c.user.login,
                 avatar_url: c.user.avatar_url,
             },
-            body: c.body,
+            body: c.body || '',
+            body_html: c.body_html || '',
             created_at: c.created_at,
             replies: [],
         };
@@ -85,6 +88,9 @@ export function CommentSection({
             owner: repoOwner,
             repo: repoName,
             issue_number: issueNumber,
+            mediaType: {
+                format: 'html',
+            },
         });
         return data;
     };
